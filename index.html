@@ -1,0 +1,73 @@
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <title>播磨陰陽道自分暦</title>
+        <style type="text/css">
+#koyomi {
+    border: 1px solid red;
+    margin: 0 auto;
+    width: 300px;
+    height: 300px;
+}
+        </style>
+        <script type="text/javascript">
+function OnesKoyomi(birthMonth, ratio) {
+    this.birthMonth =birthMonth;
+    this.ratio = ratio;
+}
+OnesKoyomi.prototype = {
+    draw: function (ctx) {
+        // circle
+        ctx.beginPath();
+        ctx.arc(150, 150, 100, 0, 2 * Math.PI);
+        ctx.closePath();
+        ctx.stroke();
+
+        // pie
+        // ctx.beginPath();
+        // ctx.moveTo(150, 150);
+        // ctx.arc(150, 150, 100, 0, 7/12 * 2 * Math.PI);
+        // ctx.fill();
+        this.pie(ctx, (7 - 12) * 360 / 12, 0, true);
+        for (var i = 0; i < 12; ++i) {
+            this.putLabel(ctx, i * 360 / 12, i + 1);
+        }
+    },
+    pie: function (ctx, start, end, fill) {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
+        ctx.beginPath();
+        ctx.moveTo(150, 150);
+        ctx.arc(150, 150, 100,
+            (-.25 + start / 360) * 2 * Math.PI,
+            (-.25 + end   / 360) * 2 * Math.PI);
+        ctx.fill();
+    },
+    putLabel: function (ctx, degree, label) {
+        var rad = 2 * Math.PI * (-.25 + degree / 360);
+        // 底辺=斜め / cos(rad)
+        // 高さ=斜め / sin(rad)
+        ctx.font = '20px serif';
+        var textSize = ctx.measureText(label);
+        // console.log(textSize);
+        var len = 100 + 15;
+        var x = 150 + len * Math.cos(rad) - textSize.width / 2;
+        var y = 150 + len * Math.sin(rad) + 15 / 2;
+        ctx.fillStyle = 'black';
+        ctx.fillText(label, x, y);
+    },
+};
+function main() {
+    var koyomi = document.getElementById('koyomi');
+    var ctx = koyomi.getContext('2d');
+    // for retina
+    ctx.scale(2, 2);
+
+    var myKoyomi = new OnesKoyomi(1, 0.5);
+    myKoyomi.draw(ctx);
+}
+        </script>
+    </head>
+    <body onload="main();">
+        <canvas id="koyomi" width="600" height="600" />
+    </body>
+</html>
