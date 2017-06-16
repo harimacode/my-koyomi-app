@@ -12,7 +12,7 @@
         </style>
         <script type="text/javascript">
 function OnesKoyomi(birthMonth, ratio) {
-    this.birthMonth =birthMonth;
+    this.birthMonth = birthMonth;
     this.ratio = ratio;
 }
 OnesKoyomi.prototype = {
@@ -30,11 +30,11 @@ OnesKoyomi.prototype = {
         // ctx.fill();
         this.pie(ctx, (7 - 12) * 360 / 12, 0, true);
         for (var i = 0; i < 12; ++i) {
-            this.putLabel(ctx, i * 360 / 12, i + 1);
+            this.putLabel(ctx, i * 360 / 12, (i + this.birthMonth - 1) % 12 + 1);
         }
     },
     pie: function (ctx, start, end, fill) {
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
+        ctx.fillStyle = 'rgba(0, 0, 0, ' + this.ratio + ')';
         ctx.beginPath();
         ctx.moveTo(150, 150);
         ctx.arc(150, 150, 100,
@@ -62,7 +62,7 @@ function main() {
     // for retina
     ctx.scale(2, 2);
 
-    var myKoyomi = new OnesKoyomi(1, 0.5);
+    var myKoyomi = new OnesKoyomi(6, 0.5);
     myKoyomi.draw(ctx);
 }
         </script>
