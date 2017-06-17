@@ -11,8 +11,11 @@
 }
         </style>
         <script type="text/javascript">
-function OnesKoyomi(birthMonth, x, y, size, ratio) {
+function OnesKoyomi(birthMonth, baseMonth, x, y, size, ratio) {
     this.birthMonth = birthMonth;
+    this.baseMonth = baseMonth == 0
+        ? birthMonth
+        : baseMonth;
     this.x = x;
     this.y = y;
     this.size = size;
@@ -29,9 +32,12 @@ OnesKoyomi.prototype = {
         ctx.closePath();
         ctx.stroke();
 
-        this.pie(ctx, (7 - 12) * 360 / 12, 0, true);
+        var adjustment = this.birthMonth - this.baseMonth;
+        var from = (7 - 12 + adjustment) % 12;
+        var to   = adjustment;
+        this.pie(ctx, from * 360 / 12, to * 360 / 12, true);
         for (var i = 0; i < 12; ++i) {
-            this.putLabel(ctx, i * 360 / 12, (i + this.birthMonth - 1) % 12 + 1);
+            this.putLabel(ctx, i * 360 / 12, (i + this.baseMonth - 1) % 12 + 1);
         }
     },
     pie: function (ctx, start, end, fill) {
@@ -66,10 +72,15 @@ function main() {
     // for retina
     ctx.scale(2, 2);
 
-    var myKoyomi = new OnesKoyomi(6, 0, 0, 200, 0.5);
-    myKoyomi.draw(ctx);
-    var myKoyomi2 = new OnesKoyomi(6, 200, 0, 200, 0.5);
-    myKoyomi2.draw(ctx);
+    var myself = new OnesKoyomi(11, 0, 0, 0, 300, 0.50);
+    var koyomis = [
+        myself,
+        new OnesKoyomi(3, myself.birthMonth, 0, 0, 300, 0.25),
+        new OnesKoyomi(6, myself.birthMonth, 0, 0, 300, 0.25),
+    ];
+    for (var item of koyomis) {
+        item.draw(ctx);
+    }
 }
         </script>
     </head>
