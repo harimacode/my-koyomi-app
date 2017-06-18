@@ -40,6 +40,10 @@ function MyKoyomiView(id, x, y, size, myKoyomi) {
     ctx.scale(2, 2);
 }
 MyKoyomiView.prototype = {
+    setBirthMonth: function (aMonth) {
+        this.mine = aMonth;
+        this.draw();
+    },
     add: function (aOther) {
         this.others.push(aOther);
     },
@@ -176,8 +180,14 @@ BirthdaySettings.prototype = {
 function main() {
     var settings = new BirthdaySettings('settings');
 
-    var view = new MyKoyomiView('koyomi', 0, 0, 400, 11);
+    var view = new MyKoyomiView('koyomi', 0, 0, 400, 1);
     view.draw();
+
+    settings.elt.addEventListener('change', function (e) {
+        var birthday = e.target.value;
+        var month = birthday ? parseInt(birthday.split('-')[1]) : 1;
+        view.setBirthMonth(month);
+    }, false);
 
     settings.elt.addEventListener('add', function (e) {
         view.add(e.detail);
@@ -195,8 +205,8 @@ function main() {
         <form id="settings">
             <table>
                 <tr>
-                    <td><label for="my-birthday">自分の誕生日: </label></td>
-                    <td class="fill"><input type="date" id="my-birthday"></td>
+                    <td>自分の誕生日: </td>
+                    <td class="fill"><input type="date" class="birthday"></td>
                 </tr>
             </table>
             
