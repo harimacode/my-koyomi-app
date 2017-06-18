@@ -11,8 +11,11 @@
 }
         </style>
         <script type="text/javascript">
-function MyKoyomiView(id, myKoyomi) {
+function MyKoyomiView(id, x, y, size, myKoyomi) {
     this.elt = document.getElementById(id);
+    this.x = x;
+    this.y = y;
+    this.size = size;
     this.mine = myKoyomi;
     this.others = [];
 }
@@ -32,56 +35,12 @@ MyKoyomiView.prototype = {
 
         var koyomis = [this.mine].concat(this.others);
         for (var item of koyomis) {
-            item.draw(ctx);
+            item.draw(ctx, this.x, this.y, this.size);
         }
-    },
-};
-function OnesKoyomi(birthMonth, x, y, size, ratio) {
-    this.parent = null;
-    this.birthMonth = birthMonth;
-    this.x = x;
-    this.y = y;
-    this.size = size;
-    this.ratio = ratio;
-}
-OnesKoyomi.prototype = {
-    baseMonth: function () {
-        if (this.parent) {
-            return this.parent.birthMonth;
-        }
-        return this.birthMonth;
-    },
-    draw: function (ctx) {
-        ctx.beginPath();
-        ctx.arc(
-            this.x + this.size / 2,
-            this.y + this.size / 2,
-            this.size / 3,
-            0, 2 * Math.PI);
-        ctx.closePath();
-        ctx.stroke();
 
-        var adjustment = this.birthMonth - this.baseMonth();
-        var from = (7 - 12 + adjustment) % 12;
-        var to   = adjustment;
-        this.pie(ctx, from * 360 / 12, to * 360 / 12, true);
         for (var i = 0; i < 12; ++i) {
-            this.putLabel(ctx, i * 360 / 12, (i + this.baseMonth() - 1) % 12 + 1);
+            this.putLabel(ctx, i * 360 / 12, (i + this.mine.baseMonth() - 1) % 12 + 1);
         }
-    },
-    pie: function (ctx, start, end, fill) {
-        ctx.fillStyle = 'rgba(0, 0, 0, ' + this.ratio + ')';
-        ctx.beginPath();
-        ctx.moveTo(
-            this.x + this.size / 2,
-            this.y + this.size / 2);
-        ctx.arc(
-            this.x + this.size / 2,
-            this.y + this.size / 2,
-            this.size / 3,
-            (-.25 + start / 360) * 2 * Math.PI,
-            (-.25 + end   / 360) * 2 * Math.PI);
-        ctx.fill();
     },
     putLabel: function (ctx, degree, label) {
         var rad = 2 * Math.PI * (-.25 + degree / 360);
@@ -95,10 +54,52 @@ OnesKoyomi.prototype = {
         ctx.fillText(label, x, y);
     },
 };
+function OnesKoyomi(birthMonth, ratio) {
+    this.parent = null;
+    this.birthMonth = birthMonth;
+    this.ratio = ratio;
+}
+OnesKoyomi.prototype = {
+    baseMonth: function () {
+        if (this.parent) {
+            return this.parent.birthMonth;
+        }
+        return this.birthMonth;
+    },
+    draw: function (ctx, x, y, size) {
+        ctx.beginPath();
+        ctx.arc(
+            x + size / 2,
+            y + size / 2,
+            size / 3,
+            0, 2 * Math.PI);
+        ctx.closePath();
+        ctx.stroke();
+
+        var adjustment = this.birthMonth - this.baseMonth();
+        var from = (7 - 12 + adjustment) % 12;
+        var to   = adjustment;
+        this.pie(ctx, x, y, size, from * 360 / 12, to * 360 / 12, true);
+    },
+    pie: function (ctx, x, y, size, start, end, fill) {
+        ctx.fillStyle = 'rgba(0, 0, 0, ' + this.ratio + ')';
+        ctx.beginPath();
+        ctx.moveTo(
+            x + size / 2,
+            y + size / 2);
+        ctx.arc(
+            x + size / 2,
+            y + size / 2,
+            size / 3,
+            (-.25 + start / 360) * 2 * Math.PI,
+            (-.25 + end   / 360) * 2 * Math.PI);
+        ctx.fill();
+    },
+};
 function main() {
-    var view = new MyKoyomiView('koyomi', new OnesKoyomi(11, 0, 0, 300, 0.50));
-    view.add(new OnesKoyomi(3, 0, 0, 300, 0.25));
-    view.add(new OnesKoyomi(6, 0, 0, 300, 0.25));
+    var view = new MyKoyomiView('koyomi', 0, 0, 300, new OnesKoyomi(11, 0.50));
+    view.add(new OnesKoyomi(3, 0.25));
+    view.add(new OnesKoyomi(6, 0.25));
 
     view.draw();
 }
