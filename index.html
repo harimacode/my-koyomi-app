@@ -6,8 +6,19 @@
 #koyomi {
     border: 1px solid red;
     margin: 0 auto;
-    width:  400px;
-    height: 400px;
+    float: left;
+}
+#settings {
+    float: left;
+}
+table {
+    width: 100%;
+}
+.buttons {
+    text-align: right;
+}
+.fill input {
+    width: 100%;
 }
         </style>
         <script type="text/javascript">
@@ -18,18 +29,28 @@ function MyKoyomiView(id, x, y, size, myKoyomi) {
     this.size = size;
     this.mine = myKoyomi;
     this.others = [];
+
+    this.elt.width  = size * 2;
+    this.elt.height = size * 2;
+    this.elt.style.width  = size + 'px';
+    this.elt.style.height = size + 'px';
+
+    var ctx = this.elt.getContext('2d');
+    // for retina
+    ctx.scale(2, 2);
 }
 MyKoyomiView.prototype = {
     add: function (aOther) {
         this.others.push(aOther);
     },
-    remove: function (aOther) {
-        this.other.remove(aOther);
+    removeAt: function (aIndex) {
+        this.others.splice(aIndex, 1);
     },
     draw: function () {
         var ctx = this.elt.getContext('2d');
         // for retina
-        ctx.scale(2, 2);
+
+        ctx.clearRect(this.x, this.y, this.size, this.size);
 
         var alphaUnit = 1 / (2 + this.others.length);
         this.drawOnesKoyomi(ctx, this.mine, alphaUnit * 2);
@@ -82,16 +103,111 @@ MyKoyomiView.prototype = {
         ctx.fill();
     },
 };
-function main() {
-    var view = new MyKoyomiView('koyomi', 0, 0, 300, 11);
-    view.add(3);
-    view.add(6);
 
+// TODO: make event target with babel
+function BirthdaySettings(id) {
+    this.elt = document.getElementById(id);
+    this.setup();
+}
+BirthdaySettings.prototype = {
+    setup: function () {
+        var that = this;
+        var addButton = this.elt.querySelector('.add');
+        addButton.addEventListener('click', function (e) {
+            that.addBirthday();
+            e.preventDefault();
+        }, false);
+    },
+    addBirthday: function () {
+        var checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.className = 'birthday1';
+        checkbox.checked = true;
+
+        var text = document.createElement('label');
+        var newName = this.elt.querySelector('.newName').value;
+        var newBirthday = this.elt.querySelector('.newBirthday').value;
+        text.innerText = newName + ': ' + newBirthday;
+
+        var button = document.createElement('button');
+        button.className = 'remove';
+        button.innerText = '×'; 
+        var that = this;
+        button.addEventListener('click', function (e) {
+            that.removeBirthday(e);
+            e.preventDefault();
+        }, false);
+
+        var table = this.elt.querySelector('.birthdays');
+        var tr = document.createElement('tr');
+        var contents = [checkbox, text, button];
+        contents.forEach(function (subElt) {
+            var td = document.createElement('td');
+            td.appendChild(subElt);
+            tr.appendChild(td);
+        });
+        table.appendChild(tr);
+
+        // dispatch add event to the settings elt
+        this.elt.dispatchEvent(new CustomEvent('add', {
+            'detail': this.birthMonthOf(tr)
+        }));
+    },
+    removeBirthday: function (e) {
+        var tr = e.target.parentNode.parentNode;
+        var i = 0;
+        for (i = 0; i < tr.parentNode.children.length; ++i) {
+            if (tr == tr.parentNode.children[i]) {
+                break;
+            }
+        }
+        tr.parentNode.removeChild(tr);
+
+        this.elt.dispatchEvent(new CustomEvent('remove', {
+            'detail': i
+        }));
+    },
+    birthMonthOf: function (tr) {
+        var label = tr.querySelector('label');
+        return parseInt(label.innerText.split(':')[1].split('-')[1]);
+    },
+};
+
+function main() {
+    var settings = new BirthdaySettings('settings');
+
+    var view = new MyKoyomiView('koyomi', 0, 0, 400, 11);
     view.draw();
+
+    settings.elt.addEventListener('add', function (e) {
+        view.add(e.detail);
+        view.draw();
+    }, false);
+    settings.elt.addEventListener('remove', function (e) {
+        view.removeAt(e.detail);
+        view.draw();
+    }, false);
 }
         </script>
     </head>
     <body onload="main();">
-        <canvas id="koyomi" width="800" height="800" />
+        <canvas id="koyomi"></canvas>
+        <form id="settings">
+            <table>
+                <tr>
+                    <td><label for="my-birthday">自分の誕生日: </label></td>
+                    <td class="fill"><input type="date" id="my-birthday"></td>
+                </tr>
+            </table>
+            
+            <hr>
+            <table class="birthdays"></table>
+            <hr>
+            <table>
+                <tr><td>名前: </td><td class="fill"><input type="text" class="newName" /></td></tr>
+                <tr><td>誕生日: </td><td class="fill"><input type="date" class="newBirthday" /></td></tr>
+                <tr><td></td><td class="buttons"><button class="add">＋</button></td></tr>
+            </table>
+        </form>
     </body>
 </html>
