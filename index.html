@@ -34,7 +34,8 @@ MyKoyomiView.prototype = {
         }
     },
 };
-function OnesKoyomi(birthMonth, baseMonth, x, y, size, ratio) {
+function OnesKoyomi(parent, birthMonth, x, y, size, ratio) {
+    var baseMonth = parent ? parent.birthMonth : birthMonth;
     this.birthMonth = birthMonth;
     this.baseMonth = baseMonth == 0
         ? birthMonth
@@ -90,9 +91,9 @@ OnesKoyomi.prototype = {
     },
 };
 function main() {
-    var view = new MyKoyomiView('koyomi', new OnesKoyomi(11, 0, 0, 0, 300, 0.50));
-    view.add(new OnesKoyomi(3, view.mine.birthMonth, 0, 0, 300, 0.25));
-    view.add(new OnesKoyomi(6, view.mine.birthMonth, 0, 0, 300, 0.25));
+    var view = new MyKoyomiView('koyomi', new OnesKoyomi(null, 11, 0, 0, 300, 0.50));
+    view.add(new OnesKoyomi(view.mine, 3, 0, 0, 300, 0.25));
+    view.add(new OnesKoyomi(view.mine, 6, 0, 0, 300, 0.25));
 
     view.draw();
 }
