@@ -19,9 +19,11 @@ function MyKoyomiView(id, myKoyomi) {
 MyKoyomiView.prototype = {
     add: function (aOther) {
         this.others.push(aOther);
+        aOther.parent = this.mine;
     },
     remove: function (aOther) {
         this.other.remove(aOther);
+        aOther.parent = null;
     },
     draw: function () {
         var ctx = this.elt.getContext('2d');
@@ -34,18 +36,21 @@ MyKoyomiView.prototype = {
         }
     },
 };
-function OnesKoyomi(parent, birthMonth, x, y, size, ratio) {
-    var baseMonth = parent ? parent.birthMonth : birthMonth;
+function OnesKoyomi(birthMonth, x, y, size, ratio) {
+    this.parent = null;
     this.birthMonth = birthMonth;
-    this.baseMonth = baseMonth == 0
-        ? birthMonth
-        : baseMonth;
     this.x = x;
     this.y = y;
     this.size = size;
     this.ratio = ratio;
 }
 OnesKoyomi.prototype = {
+    baseMonth: function () {
+        if (this.parent) {
+            return this.parent.birthMonth;
+        }
+        return this.birthMonth;
+    },
     draw: function (ctx) {
         ctx.beginPath();
         ctx.arc(
@@ -56,12 +61,12 @@ OnesKoyomi.prototype = {
         ctx.closePath();
         ctx.stroke();
 
-        var adjustment = this.birthMonth - this.baseMonth;
+        var adjustment = this.birthMonth - this.baseMonth();
         var from = (7 - 12 + adjustment) % 12;
         var to   = adjustment;
         this.pie(ctx, from * 360 / 12, to * 360 / 12, true);
         for (var i = 0; i < 12; ++i) {
-            this.putLabel(ctx, i * 360 / 12, (i + this.baseMonth - 1) % 12 + 1);
+            this.putLabel(ctx, i * 360 / 12, (i + this.baseMonth() - 1) % 12 + 1);
         }
     },
     pie: function (ctx, start, end, fill) {
@@ -91,9 +96,9 @@ OnesKoyomi.prototype = {
     },
 };
 function main() {
-    var view = new MyKoyomiView('koyomi', new OnesKoyomi(null, 11, 0, 0, 300, 0.50));
-    view.add(new OnesKoyomi(view.mine, 3, 0, 0, 300, 0.25));
-    view.add(new OnesKoyomi(view.mine, 6, 0, 0, 300, 0.25));
+    var view = new MyKoyomiView('koyomi', new OnesKoyomi(11, 0, 0, 300, 0.50));
+    view.add(new OnesKoyomi(3, 0, 0, 300, 0.25));
+    view.add(new OnesKoyomi(6, 0, 0, 300, 0.25));
 
     view.draw();
 }
