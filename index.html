@@ -11,6 +11,29 @@
 }
         </style>
         <script type="text/javascript">
+function MyKoyomiView(id, myKoyomi) {
+    this.elt = document.getElementById(id);
+    this.mine = myKoyomi;
+    this.others = [];
+}
+MyKoyomiView.prototype = {
+    add: function (aOther) {
+        this.others.push(aOther);
+    },
+    remove: function (aOther) {
+        this.other.remove(aOther);
+    },
+    draw: function () {
+        var ctx = this.elt.getContext('2d');
+        // for retina
+        ctx.scale(2, 2);
+
+        var koyomis = [this.mine].concat(this.others);
+        for (var item of koyomis) {
+            item.draw(ctx);
+        }
+    },
+};
 function OnesKoyomi(birthMonth, baseMonth, x, y, size, ratio) {
     this.birthMonth = birthMonth;
     this.baseMonth = baseMonth == 0
@@ -67,20 +90,11 @@ OnesKoyomi.prototype = {
     },
 };
 function main() {
-    var koyomi = document.getElementById('koyomi');
-    var ctx = koyomi.getContext('2d');
-    // for retina
-    ctx.scale(2, 2);
+    var view = new MyKoyomiView('koyomi', new OnesKoyomi(11, 0, 0, 0, 300, 0.50));
+    view.add(new OnesKoyomi(3, view.mine.birthMonth, 0, 0, 300, 0.25));
+    view.add(new OnesKoyomi(6, view.mine.birthMonth, 0, 0, 300, 0.25));
 
-    var myself = new OnesKoyomi(11, 0, 0, 0, 300, 0.50);
-    var koyomis = [
-        myself,
-        new OnesKoyomi(3, myself.birthMonth, 0, 0, 300, 0.25),
-        new OnesKoyomi(6, myself.birthMonth, 0, 0, 300, 0.25),
-    ];
-    for (var item of koyomis) {
-        item.draw(ctx);
-    }
+    view.draw();
 }
         </script>
     </head>
