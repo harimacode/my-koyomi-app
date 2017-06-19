@@ -108,41 +108,101 @@ MyKoyomiView.prototype = {
     },
 };
 
+function defaultMonth() {
+    var now = new Date();
+    return [now.getFullYear(), now.getMonth() + 1].join('-');
+}
+function savedMonth() {
+    return localStorage.birthday
+        ? localStorage.birthday
+        : defaultMonth();
+}
+
 // TODO: make event target with babel
-function BirthdaySettings(id) {
+function BirthdaySettings(id, value, others) {
     this.elt = document.getElementById(id);
+    this.setYearMonth(value);
     this.setup();
 }
 BirthdaySettings.prototype = {
+    load: function (others) {
+        if (!others) {
+            return;
+        }
+        var that = this;
+        others.forEach(function (aOther) {
+            that.addBirthday(aOther);
+        });
+    },
     setup: function () {
         var that = this;
         
         var birthday = this.elt.querySelector('.birthday');
         birthday.addEventListener('change', function (e) {
-            var birthday = e.target.value;
-            var month = birthday ? parseInt(birthday.split('-')[1]) : 1;
             that.elt.dispatchEvent(new CustomEvent('month', {
-                'detail': month
+                'detail': that.month()
             }));
             e.preventDefault();
         }, false);
 
         var addButton = this.elt.querySelector('.add');
         addButton.addEventListener('click', function (e) {
-            that.addBirthday();
+            var newName = that.elt.querySelector('.newName').value;
+            var newBirthday = that.elt.querySelector('.newBirthday').value;
+            that.addBirthday({
+                'name': newName,
+                'birthMonth': newBirthday,
+            });
             e.preventDefault();
         }, false);
     },
-    addBirthday: function () {
+    setYearMonth: function (aYearMonth) {
+        var birthday = this.elt.querySelector('.birthday');
+        birthday.value = aYearMonth
+            ? aYearMonth
+            : defaultMonth();
+    },
+    yearMonth: function () {
+        var birthday = this.elt.querySelector('.birthday').value;
+        return birthday
+            ? birthday
+            : defaultMonth();
+    },
+    month: function () {
+        return parseInt(this.yearMonth().split('-')[1]);
+    },
+    birthdays: function () {
+        var result = [];
+        var items = this.elt.querySelectorAll('.birthdaysItem');
+        items.forEach(function (aItem) {
+            var name = aItem.querySelector('.name').innerText;
+            var birthMonth = aItem.querySelector('.birthMonth').innerText;
+            result.push({
+                'name': name,
+                'birthMonth': birthMonth,
+            });
+        });
+        return result;
+    },
+    addBirthday: function (aParams) {
         var checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
         checkbox.className = 'birthday1';
         checkbox.checked = true;
 
-        var text = document.createElement('label');
-        var newName = this.elt.querySelector('.newName').value;
-        var newBirthday = this.elt.querySelector('.newBirthday').value;
-        text.innerText = newName + ': ' + newBirthday;
+        var text = document.createElement('div');
+        text.className = 'birthdaysItem';
+        var nameSpan = document.createElement('span');
+        nameSpan.className = 'name';
+        nameSpan.innerText = aParams.name;
+        var separator = document.createElement('span');
+        separator.innerText = ': ';
+        var birthdaySpan = document.createElement('span');
+        birthdaySpan.className = 'birthMonth';
+        birthdaySpan.innerText = aParams.birthMonth;
+        [nameSpan, separator, birthdaySpan].forEach(function (elt) {
+            text.appendChild(elt);
+        });
 
         var button = document.createElement('button');
         button.className = 'remove';
@@ -183,29 +243,39 @@ BirthdaySettings.prototype = {
         }));
     },
     birthMonthOf: function (tr) {
-        var label = tr.querySelector('label');
-        return parseInt(label.innerText.split(':')[1].split('-')[1]);
+        var birthMonth = tr.querySelector('.birthMonth');
+        return parseInt(birthMonth.innerText.split('-')[1]);
     },
 };
 
 function main() {
-    var settings = new BirthdaySettings('settings');
+    // localStorage.clear();
+    var settings = new BirthdaySettings('settings',
+        localStorage.birthday);
 
-    var view = new MyKoyomiView('koyomi', 0, 0, 400, 1);
+    var view = new MyKoyomiView('koyomi', 0, 0, 300,
+        settings.month());
     view.draw();
 
     settings.elt.addEventListener('month', function (e) {
         view.setBirthMonth(e.detail);
+        localStorage.birthday = settings.yearMonth();
     }, false);
 
     settings.elt.addEventListener('add', function (e) {
         view.add(e.detail);
+        var s = JSON.stringify(settings.birthdays());
+        localStorage.birthdays = s;
         view.draw();
     }, false);
     settings.elt.addEventListener('remove', function (e) {
         view.removeAt(e.detail);
+        var s = JSON.stringify(settings.birthdays());
+        localStorage.birthdays = s;
         view.draw();
     }, false);
+
+    settings.load(localStorage.birthdays ? JSON.parse(localStorage.birthdays) : null);
 }
         </script>
     </head>
