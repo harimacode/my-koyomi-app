@@ -116,6 +116,17 @@ function BirthdaySettings(id) {
 BirthdaySettings.prototype = {
     setup: function () {
         var that = this;
+        
+        var birthday = this.elt.querySelector('.birthday');
+        birthday.addEventListener('change', function (e) {
+            var birthday = e.target.value;
+            var month = birthday ? parseInt(birthday.split('-')[1]) : 1;
+            that.elt.dispatchEvent(new CustomEvent('month', {
+                'detail': month
+            }));
+            e.preventDefault();
+        }, false);
+
         var addButton = this.elt.querySelector('.add');
         addButton.addEventListener('click', function (e) {
             that.addBirthday();
@@ -183,10 +194,8 @@ function main() {
     var view = new MyKoyomiView('koyomi', 0, 0, 400, 1);
     view.draw();
 
-    settings.elt.addEventListener('change', function (e) {
-        var birthday = e.target.value;
-        var month = birthday ? parseInt(birthday.split('-')[1]) : 1;
-        view.setBirthMonth(month);
+    settings.elt.addEventListener('month', function (e) {
+        view.setBirthMonth(e.detail);
     }, false);
 
     settings.elt.addEventListener('add', function (e) {
@@ -205,8 +214,8 @@ function main() {
         <form id="settings">
             <table>
                 <tr>
-                    <td>自分の誕生日: </td>
-                    <td class="fill"><input type="date" class="birthday"></td>
+                    <td>自分の誕生月: </td>
+                    <td class="fill"><input type="month" class="birthday"></td>
                 </tr>
             </table>
             
@@ -215,7 +224,7 @@ function main() {
             <hr>
             <table>
                 <tr><td>名前: </td><td class="fill"><input type="text" class="newName" /></td></tr>
-                <tr><td>誕生日: </td><td class="fill"><input type="date" class="newBirthday" /></td></tr>
+                <tr><td>誕生月: </td><td class="fill"><input type="month" class="newBirthday" /></td></tr>
                 <tr><td></td><td class="buttons"><button class="add">＋</button></td></tr>
             </table>
         </form>
