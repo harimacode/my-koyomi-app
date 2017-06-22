@@ -160,14 +160,15 @@ BirthdaySettings.prototype = {
     },
     setYearMonth: function (aYearMonth) {
         var birthday = this.elt.querySelector('.birthday');
-        birthday.value = aYearMonth
+        var yearMonth = aYearMonth
             ? aYearMonth
             : defaultMonth();
+        birthday.value = yearMonth.split('-')[1];
     },
     yearMonth: function () {
         var birthday = this.elt.querySelector('.birthday').value;
         return birthday
-            ? birthday
+            ? '0000-' + birthday
             : defaultMonth();
     },
     month: function () {
@@ -246,7 +247,8 @@ BirthdaySettings.prototype = {
     },
     birthMonthOf: function (tr) {
         var birthMonth = tr.querySelector('.birthMonth');
-        return parseInt(birthMonth.innerText.split('-')[1]);
+        var month = birthMonth.innerText;//.split('-')[1];
+        return parseInt(month);
     },
 };
 
@@ -287,7 +289,22 @@ function main() {
             <table>
                 <tr>
                     <td>自分の誕生月: </td>
-                    <td class="fill"><input type="month" class="birthday"></td>
+                    <td class="fill">
+                        <select class="birthday">
+                            <option value="1">1月</option>
+                            <option value="2">2月</option>
+                            <option value="3">3月</option>
+                            <option value="4">4月</option>
+                            <option value="5">5月</option>
+                            <option value="6">6月</option>
+                            <option value="7">7月</option>
+                            <option value="8">8月</option>
+                            <option value="9">9月</option>
+                            <option value="10">10月</option>
+                            <option value="11">11月</option>
+                            <option value="12">12月</option>
+                        </select>
+                    </td>
                 </tr>
             </table>
             
@@ -296,7 +313,22 @@ function main() {
             <hr>
             <table>
                 <tr><td>名前: </td><td class="fill"><input type="text" class="newName" /></td></tr>
-                <tr><td>誕生月: </td><td class="fill"><input type="month" class="newBirthday" /></td></tr>
+                <tr><td>誕生月: </td><td class="fill">
+                    <select class="newBirthday">
+                        <option value="1">1月</option>
+                        <option value="2">2月</option>
+                        <option value="3">3月</option>
+                        <option value="4">4月</option>
+                        <option value="5">5月</option>
+                        <option value="6">6月</option>
+                        <option value="7">7月</option>
+                        <option value="8">8月</option>
+                        <option value="9">9月</option>
+                        <option value="10">10月</option>
+                        <option value="11">11月</option>
+                        <option value="12">12月</option>
+                    </select>
+                </td></tr>
                 <tr><td></td><td class="buttons"><button class="add">＋</button></td></tr>
             </table>
         </form>
