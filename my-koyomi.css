@@ -1,0 +1,18 @@
+#koyomi {
+    border: 2px solid #cccccc;
+    border-radius: 0.5em;
+    margin: 0 auto;
+    float: left;
+}
+#settings {
+    float: left;
+}
+table {
+    width: 100%;
+}
+.buttons {
+    text-align: right;
+}
+.fill input {
+    width: 100%;
+}
