@@ -227,6 +227,10 @@ BirthdaySettings.prototype = {
 };
 
 function main() {
+    var monthForms = document.querySelectorAll('.month');
+    Array.prototype.forEach.call(monthForms, function (aSelect) {
+        setupMonthForm(aSelect);
+    });
     // localStorage.clear();
     var settings = new BirthdaySettings('settings',
         localStorage.birthday);
@@ -254,6 +258,15 @@ function main() {
     }, false);
 
     settings.load(localStorage.birthdays ? JSON.parse(localStorage.birthdays) : null);
+}
+function setupMonthForm(aSelect) {
+    for (var i = 0; i < 12; ++i) {
+        var month = i + 1;
+        var option = document.createElement('option');
+        option.value = month;
+        option.innerText = month + '月';
+        aSelect.appendChild(option);
+    }
 }
 window.addEventListener('load', function () {
     main();
