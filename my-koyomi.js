@@ -255,3 +255,6 @@ function main() {
 
     settings.load(localStorage.birthdays ? JSON.parse(localStorage.birthdays) : null);
 }
+window.addEventListener('load', function () {
+    main();
+}, false);
