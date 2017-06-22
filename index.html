@@ -175,7 +175,7 @@ BirthdaySettings.prototype = {
     birthdays: function () {
         var result = [];
         var items = this.elt.querySelectorAll('.birthdaysItem');
-        items.forEach(function (aItem) {
+        Array.prototype.forEach.call(items, function (aItem) {
             var name = aItem.querySelector('.name').innerText;
             var birthMonth = aItem.querySelector('.birthMonth').innerText;
             result.push({
