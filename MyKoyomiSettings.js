@@ -35,10 +35,17 @@ MyKoyomiSettings.prototype = {
         birthday.value = this.model.myself().getMonth();
     },
     addSettingItem: function (aItem) {
+        var that = this;
+
         var checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
         checkbox.className = 'birthday1';
         checkbox.checked = true;
+        checkbox.addEventListener('change', function (e) {
+            var visible = e.target.checked;
+            var index = that.indexOf(e.target);
+            that.model.others()[index].setVisible(visible);
+        }, false);
 
         var text = document.createElement('div');
         text.className = 'birthdaysItem';
@@ -57,7 +64,6 @@ MyKoyomiSettings.prototype = {
         var button = document.createElement('button');
         button.className = 'remove';
         button.innerText = '×';
-        var that = this;
         button.addEventListener('click', function (e) {
             var index = that.indexOf(e.target);
             that.model.removeAt(index);

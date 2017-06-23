@@ -29,6 +29,15 @@ MyKoyomiModel.prototype = {
     others: function () {
         return this._others;
     },
+    visibleCount: function () {
+        var i = 0;
+        this._others.forEach(function (aOther) {
+            if (aOther.isVisible()) {
+                i++;
+            }
+        });
+        return i;
+    },
     add: function (aItem) {
         this._others.push(aItem);
         aItem.listener = this;
