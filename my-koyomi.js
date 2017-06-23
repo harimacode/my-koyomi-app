@@ -1,18 +1,18 @@
-function Model(aMyself) {
+function MyKoyomiModel(aMyself) {
     this._myself = aMyself;
     aMyself.listener = this;
     this._others = [];
     this._listeners = [];
 }
-Model.fromJSON = function (aJSON) {
-    var myself = Item.fromJSON(aJSON.myself);
-    var model = new Model(myself);
+MyKoyomiModel.fromJSON = function (aJSON) {
+    var myself = MyKoyomiItem.fromJSON(aJSON.myself);
+    var model = new MyKoyomiModel(myself);
     aJSON.others.forEach(function (aOther) {
-        model.add(Item.fromJSON(aOther));
+        model.add(MyKoyomiItem.fromJSON(aOther));
     });
     return model;
 };
-Model.prototype = {
+MyKoyomiModel.prototype = {
     toJSON: function () {
         var others = [];
         this._others.forEach(function (aOther) {
@@ -56,19 +56,19 @@ Model.prototype = {
         });
     },
 };
-function Item(aName, aMonth) {
+function MyKoyomiItem(aName, aMonth) {
     this._json = {
         'name': aName,
         'month': aMonth,
         'visible': true,
     }
 }
-Item.fromJSON = function (aJSON) {
-    var item = new Item(null , 0);
+MyKoyomiItem.fromJSON = function (aJSON) {
+    var item = new MyKoyomiItem(null , 0);
     item._json = aJSON;
     return item;
 };
-Item.prototype = {
+MyKoyomiItem.prototype = {
     toJSON: function () {
         return this._json;
     },
@@ -182,14 +182,14 @@ MyKoyomiView.prototype = {
 };
 
 // TODO: make event target with babel
-function BirthdaySettings(id, aModel) {
+function MyKoyomiSettings(id, aModel) {
     this.elt = document.getElementById(id);
     this.model = aModel;
     this.model.addListener(this);
     this.updateMyself();
     this.setup();
 }
-BirthdaySettings.prototype = {
+MyKoyomiSettings.prototype = {
     setup: function () {
         var that = this;
         
@@ -203,7 +203,7 @@ BirthdaySettings.prototype = {
         addButton.addEventListener('click', function (e) {
             var newName = that.elt.querySelector('.newName').value;
             var newBirthday = that.elt.querySelector('.newBirthday').value;
-            var newItem = new Item(newName, newBirthday);
+            var newItem = new MyKoyomiItem(newName, newBirthday);
             that.model.add(newItem);
             e.preventDefault();
         }, false);
@@ -301,13 +301,13 @@ function main() {
     // localStorage.clear();
     var model = null;
     if (localStorage.saved) {
-        model = Model.fromJSON(JSON.parse(localStorage.saved));
+        model = MyKoyomiModel.fromJSON(JSON.parse(localStorage.saved));
     }
     if (!model) {
-        var myKoyomi = new Item(null, new Date().getMonth() + 1);
-        model = new Model(myKoyomi);
+        var myKoyomi = new MyKoyomiItem(null, new Date().getMonth() + 1);
+        model = new MyKoyomiModel(myKoyomi);
     }
-    var settings = new BirthdaySettings('settings',
+    var settings = new MyKoyomiSettings('settings',
         model);
     var view = new MyKoyomiView('koyomi', 0, 0, 300,
         model);
