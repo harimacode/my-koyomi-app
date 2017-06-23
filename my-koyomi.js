@@ -1,11 +1,82 @@
-function MyKoyomiView(id, x, y, size, myKoyomi) {
+function Model(aMyself) {
+    this._myself = aMyself;
+    aMyself.listener = this;
+    this._others = [];
+}
+Model.prototype = {
+    myself: function () {
+        return this._myself;
+    },
+    others: function () {
+        return this._others;
+    },
+    add: function (aItem) {
+        this._others.push(aItem);
+        aItem.listener = this;
+        this._changed();
+    },
+    removeAt: function (aIndex) {
+        this._others.splice(aIndex, 1);
+        this._changed();
+    },
+    onChange: function () {
+        this._changed();
+    },
+    _changed: function () {
+        if (this.listener) {
+            this.listener.onChange(this);
+        }
+    },
+};
+function Item(aName, aMonth) {
+    this._json = {
+        'name': aName,
+        'month': aMonth,
+        'visible': true,
+    }
+}
+Item.fromJSON = function (aJSON) {
+    var k = new Item(null , 0);
+    k._json = aJSON;
+};
+Item.prototype = {
+    setName: function (aName) {
+        this._json.name = aName;
+        this._changed();
+    },
+    getName: function () {
+        return this._json.name;
+    },
+    setMonth: function (aMonth) {
+        this._json.month = aMonth;
+        this._changed();
+    },
+    getMonth: function () {
+        return this._json.month;
+    },
+    setVisible: function (aVisible) {
+        this._json.visible = aVisible;
+        this._changed();
+    },
+    isVisible: function () {
+        return this._json.visible;
+    },
+    toJSON: function () {
+        return this._json;
+    },
+    _changed: function () {
+        if (this.listener) {
+            this.listener.onChange();
+        }
+    },
+};
+function MyKoyomiView(id, x, y, size, aModel) {
     this.elt = document.getElementById(id);
     this.x = x;
     this.y = y;
     this.size = size;
-    this.mine = myKoyomi;
-    this.others = [];
-
+    this.model = aModel;
+ 
     this.elt.width  = size * 2;
     this.elt.height = size * 2;
     this.elt.style.width  = size + 'px';
@@ -16,30 +87,20 @@ function MyKoyomiView(id, x, y, size, myKoyomi) {
     ctx.scale(2, 2);
 }
 MyKoyomiView.prototype = {
-    setBirthMonth: function (aMonth) {
-        this.mine = aMonth;
-        this.draw();
-    },
-    add: function (aOther) {
-        this.others.push(aOther);
-    },
-    removeAt: function (aIndex) {
-        this.others.splice(aIndex, 1);
-    },
     draw: function () {
         var ctx = this.elt.getContext('2d');
         // for retina
 
         ctx.clearRect(this.x, this.y, this.size, this.size);
 
-        var alphaUnit = 1 / (2 + this.others.length);
-        this.drawOnesKoyomi(ctx, this.mine, alphaUnit * 2);
-        for (var other of this.others) {
-            this.drawOnesKoyomi(ctx, other, alphaUnit);
+        var alphaUnit = 1 / (2 + this.model.others().length);
+        this.drawItem(ctx, this.model.myself(), alphaUnit * 2);
+        for (var other of this.model.others()) {
+            this.drawItem(ctx, other, alphaUnit);
         }
 
         for (var i = 0; i < 12; ++i) {
-            this.putLabel(ctx, i * 360 / 12, (i + this.mine - 1) % 12 + 1);
+            this.putLabel(ctx, i * 360 / 12, (i + this.model.myself().getMonth() - 1) % 12 + 1);
         }
     },
     putLabel: function (ctx, degree, label) {
@@ -53,7 +114,10 @@ MyKoyomiView.prototype = {
         ctx.fillStyle = 'black';
         ctx.fillText(label, x, y);
     },
-    drawOnesKoyomi: function (ctx, k, alpha) {
+    drawItem: function (ctx, k, alpha) {
+        if (!k.isVisible()) {
+            return;
+        }
         ctx.beginPath();
         ctx.arc(
             this.x + this.size / 2,
@@ -63,7 +127,7 @@ MyKoyomiView.prototype = {
         ctx.closePath();
         ctx.stroke();
 
-        var adjustment = k - this.mine;
+        var adjustment = k.getMonth() - this.model.myself().getMonth();
         var from = (7 - 12 + adjustment) % 12;
         var to   = adjustment;
         ctx.fillStyle = 'rgba(0, 0, 0, ' + alpha + ')';
@@ -81,6 +145,9 @@ MyKoyomiView.prototype = {
             (-.25 + start / 360) * 2 * Math.PI,
             (-.25 + end   / 360) * 2 * Math.PI);
         ctx.fill();
+    },
+    onChange: function () {
+        this.draw();
     },
 };
 
@@ -183,7 +250,7 @@ BirthdaySettings.prototype = {
 
         var button = document.createElement('button');
         button.className = 'remove';
-        button.innerText = '×'; 
+        button.innerText = '×';
         var that = this;
         button.addEventListener('click', function (e) {
             that.removeBirthday(e);
@@ -235,26 +302,28 @@ function main() {
     var settings = new BirthdaySettings('settings',
         localStorage.birthday);
 
+    var myKoyomi = new Item(null, settings.month());
+    var model = new Model(myKoyomi);
     var view = new MyKoyomiView('koyomi', 0, 0, 300,
-        settings.month());
+        model);
+    model.listener = view;
     view.draw();
 
     settings.elt.addEventListener('month', function (e) {
-        view.setBirthMonth(e.detail);
+        model.myself().setMonth(e.detail);
         localStorage.birthday = settings.yearMonth();
     }, false);
 
     settings.elt.addEventListener('add', function (e) {
-        view.add(e.detail);
+        var koyomi = new Item(null, e.detail);
+        model.add(koyomi);
         var s = JSON.stringify(settings.birthdays());
         localStorage.birthdays = s;
-        view.draw();
     }, false);
     settings.elt.addEventListener('remove', function (e) {
-        view.removeAt(e.detail);
+        model.removeAt(e.detail);
         var s = JSON.stringify(settings.birthdays());
         localStorage.birthdays = s;
-        view.draw();
     }, false);
 
     settings.load(localStorage.birthdays ? JSON.parse(localStorage.birthdays) : null);
