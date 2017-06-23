@@ -2,8 +2,27 @@ function Model(aMyself) {
     this._myself = aMyself;
     aMyself.listener = this;
     this._others = [];
+    this._listeners = [];
 }
+Model.fromJSON = function (aJSON) {
+    var myself = Item.fromJSON(aJSON.myself);
+    var model = new Model(myself);
+    aJSON.others.forEach(function (aOther) {
+        model.add(Item.fromJSON(aOther));
+    });
+    return model;
+};
 Model.prototype = {
+    toJSON: function () {
+        var others = [];
+        this._others.forEach(function (aOther) {
+            others.push(aOther.toJSON())
+        });
+        return {
+            'myself': this._myself.toJSON(),
+            'others': others,
+        };
+    },
     myself: function () {
         return this._myself;
     },
@@ -13,19 +32,28 @@ Model.prototype = {
     add: function (aItem) {
         this._others.push(aItem);
         aItem.listener = this;
-        this._changed();
+        this._changed(aItem, -1);
     },
     removeAt: function (aIndex) {
         this._others.splice(aIndex, 1);
-        this._changed();
+        this._changed(null, aIndex);
+    },
+    addListener: function (aListener) {
+        this._listeners.push(aListener);
+    },
+    removeListener: function (aListner) {
+        var found = this._listeners.indexOf(aListner);
+        if (found > -1) {
+            this._listeners.splice(found, 1);
+        }
     },
     onChange: function () {
-        this._changed();
+        this._changed(null, -1);
     },
-    _changed: function () {
-        if (this.listener) {
-            this.listener.onChange(this);
-        }
+    _changed: function (aAdded, aRemovedIndex) {
+        this._listeners.forEach(function (aListener) {
+            aListener.onChange(aAdded, aRemovedIndex);
+        });
     },
 };
 function Item(aName, aMonth) {
@@ -36,10 +64,14 @@ function Item(aName, aMonth) {
     }
 }
 Item.fromJSON = function (aJSON) {
-    var k = new Item(null , 0);
-    k._json = aJSON;
+    var item = new Item(null , 0);
+    item._json = aJSON;
+    return item;
 };
 Item.prototype = {
+    toJSON: function () {
+        return this._json;
+    },
     setName: function (aName) {
         this._json.name = aName;
         this._changed();
@@ -61,9 +93,6 @@ Item.prototype = {
     isVisible: function () {
         return this._json.visible;
     },
-    toJSON: function () {
-        return this._json;
-    },
     _changed: function () {
         if (this.listener) {
             this.listener.onChange();
@@ -76,6 +105,7 @@ function MyKoyomiView(id, x, y, size, aModel) {
     this.y = y;
     this.size = size;
     this.model = aModel;
+    this.model.addListener(this);
  
     this.elt.width  = size * 2;
     this.elt.height = size * 2;
@@ -146,45 +176,26 @@ MyKoyomiView.prototype = {
             (-.25 + end   / 360) * 2 * Math.PI);
         ctx.fill();
     },
-    onChange: function () {
+    onChange: function (aAdded, aRemovedIndex) {
         this.draw();
     },
 };
 
-function defaultMonth() {
-    var now = new Date();
-    return [now.getFullYear(), now.getMonth() + 1].join('-');
-}
-function savedMonth() {
-    return localStorage.birthday
-        ? localStorage.birthday
-        : defaultMonth();
-}
-
 // TODO: make event target with babel
-function BirthdaySettings(id, value, others) {
+function BirthdaySettings(id, aModel) {
     this.elt = document.getElementById(id);
-    this.setYearMonth(value);
+    this.model = aModel;
+    this.model.addListener(this);
+    this.updateMyself();
     this.setup();
 }
 BirthdaySettings.prototype = {
-    load: function (others) {
-        if (!others) {
-            return;
-        }
-        var that = this;
-        others.forEach(function (aOther) {
-            that.addBirthday(aOther);
-        });
-    },
     setup: function () {
         var that = this;
         
         var birthday = this.elt.querySelector('.birthday');
         birthday.addEventListener('change', function (e) {
-            that.elt.dispatchEvent(new CustomEvent('month', {
-                'detail': that.month()
-            }));
+            that.model.myself().setMonth(e.target.value);
             e.preventDefault();
         }, false);
 
@@ -192,43 +203,20 @@ BirthdaySettings.prototype = {
         addButton.addEventListener('click', function (e) {
             var newName = that.elt.querySelector('.newName').value;
             var newBirthday = that.elt.querySelector('.newBirthday').value;
-            that.addBirthday({
-                'name': newName,
-                'birthMonth': newBirthday,
-            });
+            var newItem = new Item(newName, newBirthday);
+            that.model.add(newItem);
             e.preventDefault();
         }, false);
-    },
-    setYearMonth: function (aYearMonth) {
-        var birthday = this.elt.querySelector('.birthday');
-        var yearMonth = aYearMonth
-            ? aYearMonth
-            : defaultMonth();
-        birthday.value = yearMonth.split('-')[1];
-    },
-    yearMonth: function () {
-        var birthday = this.elt.querySelector('.birthday').value;
-        return birthday
-            ? '0000-' + birthday
-            : defaultMonth();
-    },
-    month: function () {
-        return parseInt(this.yearMonth().split('-')[1]);
-    },
-    birthdays: function () {
-        var result = [];
-        var items = this.elt.querySelectorAll('.birthdaysItem');
-        Array.prototype.forEach.call(items, function (aItem) {
-            var name = aItem.querySelector('.name').innerText;
-            var birthMonth = aItem.querySelector('.birthMonth').innerText;
-            result.push({
-                'name': name,
-                'birthMonth': birthMonth,
-            });
+
+        this.model.others().forEach(function (aOther) {
+            that.addSettingItem(aOther);
         });
-        return result;
     },
-    addBirthday: function (aParams) {
+    updateMyself: function () {
+        var birthday = this.elt.querySelector('.birthday');
+        birthday.value = this.model.myself().getMonth();
+    },
+    addSettingItem: function (aItem) {
         var checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
         checkbox.className = 'birthday1';
@@ -238,14 +226,14 @@ BirthdaySettings.prototype = {
         text.className = 'birthdaysItem';
         var nameSpan = document.createElement('span');
         nameSpan.className = 'name';
-        nameSpan.innerText = aParams.name;
+        nameSpan.innerText = aItem.getName();
         var separator = document.createElement('span');
         separator.innerText = ': ';
         var birthdaySpan = document.createElement('span');
         birthdaySpan.className = 'birthMonth';
-        birthdaySpan.innerText = aParams.birthMonth;
-        [nameSpan, separator, birthdaySpan].forEach(function (elt) {
-            text.appendChild(elt);
+        birthdaySpan.innerText = aItem.getMonth();
+        [nameSpan, separator, birthdaySpan].forEach(function (aElt) {
+            text.appendChild(aElt);
         });
 
         var button = document.createElement('button');
@@ -253,43 +241,55 @@ BirthdaySettings.prototype = {
         button.innerText = '×';
         var that = this;
         button.addEventListener('click', function (e) {
-            that.removeBirthday(e);
+            var index = that.indexOf(e.target);
+            that.model.removeAt(index);
             e.preventDefault();
         }, false);
 
         var table = this.elt.querySelector('.birthdays');
         var tr = document.createElement('tr');
-        var contents = [checkbox, text, button];
-        contents.forEach(function (subElt) {
+        [checkbox, text, button].forEach(function (aElt) {
             var td = document.createElement('td');
-            td.appendChild(subElt);
+            td.appendChild(aElt);
             tr.appendChild(td);
         });
         table.appendChild(tr);
-
-        // dispatch add event to the settings elt
-        this.elt.dispatchEvent(new CustomEvent('add', {
-            'detail': this.birthMonthOf(tr)
-        }));
     },
-    removeBirthday: function (e) {
-        var tr = e.target.parentNode.parentNode;
-        var i = 0;
-        for (i = 0; i < tr.parentNode.children.length; ++i) {
-            if (tr == tr.parentNode.children[i]) {
-                break;
+    indexOf: function (button) {
+        var tr = this.ancestorOf(button, 'tr');
+        var trs = tr.parentNode.children;
+        var count = trs.length;
+        for (var i = 0; i < count; ++i) {
+            if (trs[i] == tr) {
+                return i;
             }
         }
-        tr.parentNode.removeChild(tr);
-
-        this.elt.dispatchEvent(new CustomEvent('remove', {
-            'detail': i
-        }));
+        return -1;
     },
-    birthMonthOf: function (tr) {
-        var birthMonth = tr.querySelector('.birthMonth');
-        var month = birthMonth.innerText;//.split('-')[1];
-        return parseInt(month);
+    ancestorOf: function (aElt, aTag) {
+        var elt = aElt;
+        while (elt) {
+            if (elt.tagName.toLowerCase() == aTag.toLowerCase()) {
+                return elt;
+            }
+            elt = elt.parentNode;
+        }
+        return null;
+    },
+    removeSettingItemAt: function (aIndex) {
+        var table = this.elt.querySelector('.birthdays');
+        var tr = table.querySelectorAll('tr')[aIndex];
+        tr.parentNode.removeChild(tr);
+    },
+    onChange: function (aAdded, aRemovedIndex) {
+        if (aAdded) {
+            this.addSettingItem(aAdded);
+        }
+        if (aRemovedIndex > -1) {
+            this.removeSettingItemAt(aRemovedIndex);
+        }
+
+        localStorage.saved = JSON.stringify(this.model.toJSON());
     },
 };
 
@@ -299,34 +299,19 @@ function main() {
         setupMonthForm(aSelect);
     });
     // localStorage.clear();
+    var model = null;
+    if (localStorage.saved) {
+        model = Model.fromJSON(JSON.parse(localStorage.saved));
+    }
+    if (!model) {
+        var myKoyomi = new Item(null, new Date().getMonth() + 1);
+        model = new Model(myKoyomi);
+    }
     var settings = new BirthdaySettings('settings',
-        localStorage.birthday);
-
-    var myKoyomi = new Item(null, settings.month());
-    var model = new Model(myKoyomi);
+        model);
     var view = new MyKoyomiView('koyomi', 0, 0, 300,
         model);
-    model.listener = view;
     view.draw();
-
-    settings.elt.addEventListener('month', function (e) {
-        model.myself().setMonth(e.detail);
-        localStorage.birthday = settings.yearMonth();
-    }, false);
-
-    settings.elt.addEventListener('add', function (e) {
-        var koyomi = new Item(null, e.detail);
-        model.add(koyomi);
-        var s = JSON.stringify(settings.birthdays());
-        localStorage.birthdays = s;
-    }, false);
-    settings.elt.addEventListener('remove', function (e) {
-        model.removeAt(e.detail);
-        var s = JSON.stringify(settings.birthdays());
-        localStorage.birthdays = s;
-    }, false);
-
-    settings.load(localStorage.birthdays ? JSON.parse(localStorage.birthdays) : null);
 }
 function setupMonthForm(aSelect) {
     for (var i = 0; i < 12; ++i) {
