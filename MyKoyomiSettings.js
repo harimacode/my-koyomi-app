@@ -12,7 +12,8 @@ MyKoyomiSettings.prototype = {
         
         var birthday = this.elt.querySelector('.birthday');
         birthday.addEventListener('change', function (e) {
-            that.model.myself().setMonth(e.target.value);
+            var month = parseInt(e.target.value);
+            that.model.myself().setMonth(month);
             e.preventDefault();
         }, false);
 

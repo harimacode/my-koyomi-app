@@ -28,8 +28,9 @@ MyKoyomiView.prototype = {
             this.drawItem(ctx, other, alphaUnit);
         }
 
+        var month = this.model.myself().getMonth();
         for (var i = 0; i < 12; ++i) {
-            this.putLabel(ctx, i * 360 / 12, (i + this.model.myself().getMonth() - 1) % 12 + 1);
+            this.putLabel(ctx, i * 360 / 12, (i + month - 1) % 12 + 1);
         }
     },
     putLabel: function (ctx, degree, label) {
