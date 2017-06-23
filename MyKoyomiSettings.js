@@ -40,7 +40,7 @@ MyKoyomiSettings.prototype = {
         var checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
         checkbox.className = 'birthday1';
-        checkbox.checked = true;
+        checkbox.checked = aItem.isVisible();
         checkbox.addEventListener('change', function (e) {
             var visible = e.target.checked;
             var index = that.indexOf(e.target);
