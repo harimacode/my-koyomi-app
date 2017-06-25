@@ -1,18 +1,98 @@
-#koyomi {
-    border: 2px solid #cccccc;
-    border-radius: 0.5em;
-    margin: 0 auto;
-    float: left;
+body,
+select,
+input {
+    font-family: sans-serif;
 }
-#settings {
-    float: left;
+label {
+    font-size: 1.2em;
 }
 table {
     width: 100%;
 }
+
+input[type="checkbox"] {
+    -moz-appearance: none;
+}
+input[type="checkbox"]:before {
+    font-size: 2em;
+    -moz-appearance: none;
+    -webkit-appearance: none;
+    border: 2px solid gray;
+    content: "\02713";
+    padding: 0;
+    margin: 0;
+}
+input[type="checkbox"]:before {
+    color: transparent;
+}
+input[type="checkbox"]:checked:before {
+    color: red;
+}
+input[type="text"] {
+    border: none;
+    border-bottom: 1px solid #eeeeee;
+}
+select,
+select:focus {
+    -moz-appearance: none;
+    -webkit-appearance: none;
+    border: none;
+    background: #eeeeee;
+    padding: 0.33em;
+    margin-right: -1em;
+}
+button {
+    font-family: monospace;
+    font-size: 0.9em;
+    color: gray;
+    border: 2px solid gray;
+    background: white;
+    border-radius: 2em;
+    width: 2.5em;
+    height: 2.5em;
+}
+select:before {
+    content: "▽";
+    color: red;
+}
+
+.koyomi-container {
+    text-align: center;
+}
+
+.fill input,
+.fill select,
+.fill label {
+    font-size: 1.2em;
+    width: 100%;
+}
+.shrink {
+    white-space: nowrap;
+    width: 0;
+}
+.right {
+    text-align: right;
+}
 .buttons {
     text-align: right;
 }
-.fill input {
-    width: 100%;
+
+@media (min-width: 769px) {
+    /* PC・タブレット用表示 */
+    #koyomi {
+        border: 2px solid #cccccc;
+        border-radius: 0.5em;
+        margin: 0 auto;
+        float: left;
+    }
+    #settings {
+        float: left;
+    }
+    .fill input {
+        width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    /* モバイル用デザイン */
 }
