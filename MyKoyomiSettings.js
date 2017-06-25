@@ -1,6 +1,7 @@
 // TODO: make event target with babel
 function MyKoyomiSettings(id, aModel) {
     this.elt = document.getElementById(id);
+    this.index = 0;
     this.model = aModel;
     this.model.addListener(this);
     this.updateMyself();
@@ -37,8 +38,18 @@ MyKoyomiSettings.prototype = {
     addSettingItem: function (aItem) {
         var that = this;
 
+        var id = this.newId();
+
+        var name = document.createElement('label');
+        name.innerText = aItem.getName();
+        name.setAttribute('for', id);
+        var month = document.createElement('label');
+        month.innerText = aItem.getMonth() + '月';
+        month.setAttribute('for', id);
+
         var checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
+        checkbox.id = id;
         checkbox.className = 'birthday1';
         checkbox.checked = aItem.isVisible();
         checkbox.addEventListener('change', function (e) {
@@ -46,20 +57,6 @@ MyKoyomiSettings.prototype = {
             var index = that.indexOf(e.target);
             that.model.others()[index].setVisible(visible);
         }, false);
-
-        var text = document.createElement('div');
-        text.className = 'birthdaysItem';
-        var nameSpan = document.createElement('span');
-        nameSpan.className = 'name';
-        nameSpan.innerText = aItem.getName();
-        var separator = document.createElement('span');
-        separator.innerText = ': ';
-        var birthdaySpan = document.createElement('span');
-        birthdaySpan.className = 'birthMonth';
-        birthdaySpan.innerText = aItem.getMonth();
-        [nameSpan, separator, birthdaySpan].forEach(function (aElt) {
-            text.appendChild(aElt);
-        });
 
         var button = document.createElement('button');
         button.className = 'remove';
@@ -72,12 +69,23 @@ MyKoyomiSettings.prototype = {
 
         var table = this.elt.querySelector('.birthdays');
         var tr = document.createElement('tr');
-        [checkbox, text, button].forEach(function (aElt) {
+        [
+            [name, 'fill'],
+            [month, 'right'],
+            [checkbox, 'shrink'],
+            [button, 'shrink']
+        ].forEach(function (aPair) {
+            var elt = aPair[0];
+            var className = aPair[1];
             var td = document.createElement('td');
-            td.appendChild(aElt);
+            td.appendChild(elt);
+            td.className = className;
             tr.appendChild(td);
         });
         table.appendChild(tr);
+    },
+    newId: function () {
+        return 'input' + this.index++;
     },
     indexOf: function (button) {
         var tr = this.ancestorOf(button, 'tr');
