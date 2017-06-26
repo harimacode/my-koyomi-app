@@ -11,6 +11,7 @@ table {
 }
 
 input[type="checkbox"] {
+    font-size: 2em;
     -moz-appearance: none;
     -webkit-appearance: none;
     background-color: transparent;
