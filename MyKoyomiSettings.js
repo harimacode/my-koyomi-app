@@ -70,7 +70,7 @@ MyKoyomiSettings.prototype = {
         var table = this.elt.querySelector('.birthdays');
         var tr = document.createElement('tr');
         [
-            [name, 'fill'],
+            [name, 'half'],
             [month, 'right'],
             [checkbox, 'shrink'],
             [button, 'shrink']

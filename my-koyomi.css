@@ -11,23 +11,25 @@ table {
 }
 
 input[type="checkbox"] {
-    -moz-appearance: none;
-    -webkit-appearance: none;
-}
-input[type="checkbox"]:before {
     font-size: 2em;
     -moz-appearance: none;
     -webkit-appearance: none;
+    background-color: transparent;
     border: 2px solid gray;
-    content: "\02713";
-    padding: 0;
+    border-radius: 0;
     margin: 0;
+    margin-left: 1em;
+    width: 2.5em;
+    height: 2.5em;
 }
 input[type="checkbox"]:before {
     color: transparent;
+    content: "\02713";
+    font-size: 2em;
+    line-height: 1.2em;
 }
 input[type="checkbox"]:checked:before {
-    color: red;
+    color: #ff6633;
 }
 input[type="text"] {
     border: none;
@@ -43,14 +45,25 @@ select:focus {
     margin-right: -1em;
 }
 button {
-    font-family: monospace;
-    font-size: 0.9em;
-    color: gray;
-    border: 2px solid gray;
+    -moz-appearance: none;
+    -webkit-appearance: none;
     background: white;
+    border: 2px solid gray;
     border-radius: 2em;
-    width: 2.5em;
-    height: 2.5em;
+    color: gray;
+    line-height 1em;
+    margin: 0;
+    margin-left: 1em;
+    padding: 0;
+    text-align: center;
+    width: 2em;
+    height: 2em;
+}
+.add {
+    font-size: 1.5em;
+}
+.remove {
+    font-size: 1em;
 }
 select:before {
     content: "▽";
@@ -61,11 +74,31 @@ select:before {
     text-align: center;
 }
 
+.caption {
+    min-width: 10em;
+}
+.fill {
+    width: 100%;
+}
 .fill input,
 .fill select,
-.fill label {
+.fill label,
+.half input,
+.half select,
+.half label {
     font-size: 1.2em;
     width: 100%;
+}
+.fill label,
+.half label {
+    display: block;
+    height: 2.5em;
+    line-height: 2.5em;
+    vertical-align: middle;
+}
+.half,
+.right {
+    width: 50%;
 }
 .shrink {
     white-space: nowrap;
