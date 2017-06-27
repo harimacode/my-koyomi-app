@@ -40,12 +40,10 @@ MyKoyomiSettings.prototype = {
 
         var id = this.newId();
 
-        var name = document.createElement('label');
+        var name = document.createElement('span');
         name.innerText = aItem.getName();
-        name.setAttribute('for', id);
-        var month = document.createElement('label');
+        var month = document.createElement('span');
         month.innerText = aItem.getMonth() + '月';
-        month.setAttribute('for', id);
 
         var checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
@@ -68,18 +66,20 @@ MyKoyomiSettings.prototype = {
         }, false);
 
         var table = this.elt.querySelector('.birthdays');
-        var tr = document.createElement('tr');
+        var tr = document.createElement('label');
+        tr.className = 'tr';
+        tr.setAttribute('for', id);
         [
             [name, 'half'],
-            [month, 'right'],
+            [month, 'half right'],
             [checkbox, 'shrink'],
             [button, 'shrink']
         ].forEach(function (aPair) {
             var elt = aPair[0];
             var className = aPair[1];
-            var td = document.createElement('td');
+            var td = document.createElement('span');
+            td.className = ['td', className].join(' ');
             td.appendChild(elt);
-            td.className = className;
             tr.appendChild(td);
         });
         table.appendChild(tr);
@@ -88,7 +88,7 @@ MyKoyomiSettings.prototype = {
         return 'input' + this.index++;
     },
     indexOf: function (button) {
-        var tr = this.ancestorOf(button, 'tr');
+        var tr = this.ancestorOf(button, 'label');
         var trs = tr.parentNode.children;
         var count = trs.length;
         for (var i = 0; i < count; ++i) {
@@ -110,7 +110,7 @@ MyKoyomiSettings.prototype = {
     },
     removeSettingItemAt: function (aIndex) {
         var table = this.elt.querySelector('.birthdays');
-        var tr = table.querySelectorAll('tr')[aIndex];
+        var tr = table.querySelectorAll('label')[aIndex];
         tr.parentNode.removeChild(tr);
     },
     onChange: function (aAdded, aRemovedIndex) {
