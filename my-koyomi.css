@@ -11,7 +11,7 @@ table {
 }
 
 input[type="checkbox"] {
-    -moz-appearance: none;
+    appearance: none;
     -webkit-appearance: none;
     background-color: transparent;
     border: 2px solid gray;
@@ -36,7 +36,7 @@ input[type="text"] {
 }
 select,
 select:focus {
-    -moz-appearance: none;
+    appearance: none;
     -webkit-appearance: none;
     border: none;
     background: #eeeeee;
@@ -44,7 +44,7 @@ select:focus {
     margin-right: -1em;
 }
 button {
-    -moz-appearance: none;
+    appearance: none;
     -webkit-appearance: none;
     background: white;
     border: 2px solid gray;
