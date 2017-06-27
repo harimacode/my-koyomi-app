@@ -24,8 +24,11 @@ input[type="checkbox"] {
 input[type="checkbox"]:before {
     color: transparent;
     content: "\02713";
+    display: block;
     font-size: 2em;
     line-height: 1.2em;
+   text-align: center;
+    width: 1em;
 }
 input[type="checkbox"]:checked:before {
     color: #ff6633;
