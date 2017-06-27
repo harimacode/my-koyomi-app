@@ -4,12 +4,19 @@ function MyKoyomiSettings(id, aModel) {
     this.index = 0;
     this.model = aModel;
     this.model.addListener(this);
+    this.editMode = false;
     this.updateMyself();
     this.setup();
 }
 MyKoyomiSettings.prototype = {
     setup: function () {
         var that = this;
+        
+        var edit = document.getElementById('edit');
+        edit.addEventListener('click', function (e) {
+            that.toggleEditMode(e.target);
+            e.preventDefault();
+        }, false);
         
         var birthday = this.elt.querySelector('.birthday');
         birthday.addEventListener('change', function (e) {
@@ -31,6 +38,27 @@ MyKoyomiSettings.prototype = {
             that.addSettingItem(aOther);
         });
     },
+    toggleEditMode: function () {
+        this.editMode = !this.editMode;
+        this.updateHiddenState();
+    },
+    updateHiddenState: function () {
+        var edit = document.getElementById('edit');
+        edit.innerText = this.editMode ? '完了' : '編集';
+    
+        var show = function (aElt) {
+            aElt.classList.remove('hidden');
+        };
+        var hide = function (aElt) {
+            aElt.classList.add('hidden');
+        };
+        var inEditMode = document.querySelectorAll('.inEditMode');
+        Array.prototype.forEach.call(inEditMode,
+            this.editMode ? show : hide);
+        var notInEditMode = document.querySelectorAll('.notInEditMode');
+        Array.prototype.forEach.call(notInEditMode,
+            this.editMode ? hide : show);
+    },
     updateMyself: function () {
         var birthday = this.elt.querySelector('.birthday');
         birthday.value = this.model.myself().getMonth();
@@ -48,7 +76,7 @@ MyKoyomiSettings.prototype = {
         var checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
         checkbox.id = id;
-        checkbox.className = 'birthday1';
+        checkbox.className = 'birthday1 notInEditMode';
         checkbox.checked = aItem.isVisible();
         checkbox.addEventListener('change', function (e) {
             var visible = e.target.checked;
@@ -57,7 +85,7 @@ MyKoyomiSettings.prototype = {
         }, false);
 
         var button = document.createElement('button');
-        button.className = 'remove';
+        button.className = 'remove inEditMode';
         button.innerText = '×';
         button.addEventListener('click', function (e) {
             var index = that.indexOf(e.target);
@@ -70,10 +98,10 @@ MyKoyomiSettings.prototype = {
         tr.className = 'tr';
         tr.setAttribute('for', id);
         [
+            [button, 'shrink'],
             [name, 'half'],
             [month, 'half right'],
             [checkbox, 'shrink'],
-            [button, 'shrink']
         ].forEach(function (aPair) {
             var elt = aPair[0];
             var className = aPair[1];
@@ -83,6 +111,8 @@ MyKoyomiSettings.prototype = {
             tr.appendChild(td);
         });
         table.appendChild(tr);
+        
+        this.updateHiddenState();
     },
     newId: function () {
         return 'input' + this.index++;
