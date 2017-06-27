@@ -18,17 +18,17 @@ input[type="checkbox"] {
     border-radius: 0;
     margin: 0;
     margin-left: 1em;
-    width: 2.5em;
-    height: 2.5em;
+    width: 3em;
+    height: 3em;
 }
 input[type="checkbox"]:before {
     color: transparent;
     content: "\02713";
     display: block;
     font-size: 2em;
-    line-height: 1.2em;
-   text-align: center;
-    width: 1em;
+    line-height: 1.5em;
+    text-align: center;
+    width: 1.2em;
 }
 input[type="checkbox"]:checked:before {
     color: #ff6633;
@@ -55,7 +55,6 @@ button {
     color: gray;
     line-height 1em;
     margin: 0;
-    margin-left: 1em;
     padding: 0;
     text-align: center;
     width: 2em;
@@ -66,6 +65,7 @@ button {
 }
 .remove {
     font-size: 1em;
+    margin-right: 1em;
 }
 select:before {
     content: "▽";
@@ -76,13 +76,27 @@ select:before {
     text-align: center;
 }
 
+.edit-container {
+    text-align: right;
+}
+#edit {
+    border-radius: 0.5em;
+    font-size: 1em;
+    padding: 0.25em 0.5em;
+    width: auto;
+    height: auto;
+}
+.hidden {
+   display: none;
+}
+
 .table {
     display: table;
     width: 100%;
 }
 .tr {
     display: table-row;
-    width: 200;
+    line-height: 2.5em;
 }
 .td {
     display: table-cell;
