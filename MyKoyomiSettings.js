@@ -27,10 +27,12 @@ MyKoyomiSettings.prototype = {
 
         var addButton = this.elt.querySelector('.add');
         addButton.addEventListener('click', function (e) {
-            var newName = that.elt.querySelector('.newName').value;
-            var newBirthday = that.elt.querySelector('.newBirthday').value;
-            var newItem = new MyKoyomiItem(newName, newBirthday);
+            var newName = that.elt.querySelector('.newName');
+            var newBirthday = that.elt.querySelector('.newBirthday');
+            var newItem = new MyKoyomiItem(newName.value,
+                newBirthday.value);
             that.model.add(newItem);
+            newName.value = '';
             e.preventDefault();
         }, false);
 
@@ -41,6 +43,10 @@ MyKoyomiSettings.prototype = {
     toggleEditMode: function () {
         this.editMode = !this.editMode;
         this.updateHiddenState();
+    },
+    updateMyself: function () {
+        var birthday = this.elt.querySelector('.birthday');
+        birthday.value = this.model.myself().getMonth();
     },
     updateHiddenState: function () {
         var edit = document.getElementById('edit');
@@ -58,10 +64,6 @@ MyKoyomiSettings.prototype = {
         var notInEditMode = document.querySelectorAll('.notInEditMode');
         Array.prototype.forEach.call(notInEditMode,
             this.editMode ? hide : show);
-    },
-    updateMyself: function () {
-        var birthday = this.elt.querySelector('.birthday');
-        birthday.value = this.model.myself().getMonth();
     },
     addSettingItem: function (aItem) {
         var that = this;
