@@ -22,8 +22,8 @@ MyKoyomiView.prototype = {
 
         ctx.clearRect(this.x, this.y, this.size, this.size);
 
-        var alphaUnit = 1 / (2 + this.model.visibleCount());
-        this.drawItem(ctx, this.model.myself(), alphaUnit * 2);
+        var alphaUnit = 1 / (1 + this.model.visibleCount());
+        this.drawItem(ctx, this.model.myself(), alphaUnit);
         for (var other of this.model.others()) {
             this.drawItem(ctx, other, alphaUnit);
         }
