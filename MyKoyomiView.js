@@ -27,6 +27,14 @@ MyKoyomiView.prototype = {
         for (var other of this.model.others()) {
             this.drawItem(ctx, other, alphaUnit);
         }
+        ctx.beginPath();
+        ctx.arc(
+            this.x + this.size / 2,
+            this.y + this.size / 2,
+            this.size / 3,
+            0, 2 * Math.PI);
+        ctx.closePath();
+        ctx.stroke();
 
         var month = this.model.myself().getMonth();
         for (var i = 0; i < 12; ++i) {
@@ -48,14 +56,6 @@ MyKoyomiView.prototype = {
         if (!k.isVisible()) {
             return;
         }
-        ctx.beginPath();
-        ctx.arc(
-            this.x + this.size / 2,
-            this.y + this.size / 2,
-            this.size / 3,
-            0, 2 * Math.PI);
-        ctx.closePath();
-        ctx.stroke();
 
         var adjustment = k.getMonth() - this.model.myself().getMonth();
         var from = (7 - 12 + adjustment) % 12;
