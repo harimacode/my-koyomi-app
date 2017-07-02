@@ -74,7 +74,7 @@ MyKoyomiView.prototype = {
                 this.size / 3 + this.ukeLineWidth() * (this.model.visibleIndexOf(k) + 0.5));
             ctx.lineWidth = this.ukeLineWidth();
             ctx.lineCap = 'round';
-            ctx.strokeStyle = this.hslAt(i);
+            ctx.strokeStyle = this.model.hslAt(i);
             ctx.stroke();
        });
     },
@@ -104,11 +104,6 @@ MyKoyomiView.prototype = {
         var width = (remainder / 2) / this.model.visibleCount();
         var maxWidth = (remainder / 2) / 3;
         return Math.min(width, maxWidth);
-    },
-    hslAt: function (aIndex) {
-        var COLORS = 7;
-        var hue = 360 * (aIndex % COLORS) / COLORS;
-        return 'hsl(' + hue + ', 100%, 93%)';
     },
     onChange: function (aAdded, aRemovedIndex) {
         this.draw();

@@ -54,6 +54,11 @@ MyKoyomiModel.prototype = {
         });
         return i;
     },
+    hslAt: function (aIndex) {
+        var COLORS = 7;
+        var hue = 360 * (aIndex % COLORS) / COLORS;
+        return 'hsl(' + hue + ', 100%, 93%)';
+    },
     add: function (aItem) {
         this._others.push(aItem);
         aItem.listener = this;
