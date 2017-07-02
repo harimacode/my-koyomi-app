@@ -32,6 +32,19 @@ MyKoyomiModel.prototype = {
     all: function () {
         return [this._myself].concat(this._others);
     },
+    visibleIndexOf: function (aItem) {
+        var i = 0;
+        var found = -1;
+        this.all().forEach(function (theItem) {
+            if (aItem == theItem) {
+                found = i;
+            }
+            if (theItem.isVisible()) {
+                i++;
+            }
+        });
+        return found;
+    },
     visibleCount: function () {
         var i = 1;
         this._others.forEach(function (aOther) {
