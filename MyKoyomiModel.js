@@ -29,8 +29,11 @@ MyKoyomiModel.prototype = {
     others: function () {
         return this._others;
     },
+    all: function () {
+        return [this._myself].concat(this._others);
+    },
     visibleCount: function () {
-        var i = 0;
+        var i = 1;
         this._others.forEach(function (aOther) {
             if (aOther.isVisible()) {
                 i++;

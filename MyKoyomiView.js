@@ -22,10 +22,10 @@ MyKoyomiView.prototype = {
 
         ctx.clearRect(this.x, this.y, this.size, this.size);
 
-        var alphaUnit = 1 / (1 + this.model.visibleCount());
-        this.drawItem(ctx, this.model.myself(), alphaUnit);
-        for (var other of this.model.others()) {
-            this.drawItem(ctx, other, alphaUnit);
+        var alphaUnit = 1 / this.model.visibleCount();
+        var all = this.model.all();
+        for (var i = 0; i < all.length; ++i) {
+            this.drawItem(ctx, all[i], i, alphaUnit);
         }
         ctx.beginPath();
         ctx.arc(
@@ -52,7 +52,7 @@ MyKoyomiView.prototype = {
         ctx.fillStyle = 'black';
         ctx.fillText(label, x, y);
     },
-    drawItem: function (ctx, k, alpha) {
+    drawItem: function (ctx, k, i, alpha) {
         if (!k.isVisible()) {
             return;
         }
@@ -60,9 +60,28 @@ MyKoyomiView.prototype = {
         var adjustment = k.getMonth() - this.model.myself().getMonth();
         var from = (7 - 12 + adjustment) % 12;
         var to   = adjustment;
-        ctx.fillStyle = 'rgba(0, 0, 0, ' + alpha + ')';
-        this.pie(ctx, from * 360 / 12, to * 360 / 12);
-        ctx.fill()
+        this.temp(ctx, function () {
+            ctx.fillStyle = 'rgba(0, 0, 0, ' + alpha + ')';
+            this.pie(ctx, from * 360 / 12, to * 360 / 12);
+            ctx.fill()
+        });
+        
+        this.temp(ctx, function () {
+            ctx.beginPath();
+            this.arc(ctx,
+                to * 360 / 12,
+                from * 360 / 12,
+                this.size / 3 + this.ukeLineWidth() * (i + 0.5));
+            ctx.lineWidth = this.ukeLineWidth();
+            ctx.lineCap = 'round';
+            ctx.strokeStyle = 'rgba(255, 0, 0, 0.4)';
+            ctx.stroke();
+       });
+    },
+    temp: function (c, fn) {
+        c.save();
+        fn.call(this);
+        c.restore();
     },
     pie: function (ctx, start, end) {
         ctx.beginPath();
@@ -78,6 +97,13 @@ MyKoyomiView.prototype = {
             r,
             (-.25 + start / 360) * 2 * Math.PI,
             (-.25 + end   / 360) * 2 * Math.PI);
+    },
+    ukeLineWidth: function () {
+        var dia = this.size / 3 * 2;
+        var remainder = this.size - dia;
+        var width = (remainder / 2) / this.model.visibleCount();
+        var maxWidth = (remainder / 2) / 3;
+        return Math.min(width, maxWidth);
     },
     onChange: function (aAdded, aRemovedIndex) {
         this.draw();
