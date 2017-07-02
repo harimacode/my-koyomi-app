@@ -70,6 +70,17 @@ MyKoyomiSettings.prototype = {
 
         var id = this.newId();
 
+        var button = document.createElement('button');
+        button.className = 'remove inEditMode';
+        button.innerText = '×';
+        button.addEventListener('click', function (e) {
+            var index = that.indexOf(e.target);
+            that.model.removeAt(index);
+            e.preventDefault();
+        }, false);
+
+        var color = document.createElement('span');
+        color.className = 'color';
         var name = document.createElement('span');
         name.innerText = aItem.getName();
         var month = document.createElement('span');
@@ -86,21 +97,13 @@ MyKoyomiSettings.prototype = {
             that.model.others()[index].setVisible(visible);
         }, false);
 
-        var button = document.createElement('button');
-        button.className = 'remove inEditMode';
-        button.innerText = '×';
-        button.addEventListener('click', function (e) {
-            var index = that.indexOf(e.target);
-            that.model.removeAt(index);
-            e.preventDefault();
-        }, false);
-
         var table = this.elt.querySelector('.birthdays');
         var tr = document.createElement('label');
         tr.className = 'tr';
         tr.setAttribute('for', id);
         [
             [button, 'shrink'],
+            [color, 'shrink'],
             [name, 'half'],
             [month, 'half right'],
             [checkbox, 'shrink'],
@@ -115,6 +118,7 @@ MyKoyomiSettings.prototype = {
         table.appendChild(tr);
         
         this.updateHiddenState();
+        this.updateColors();
     },
     newId: function () {
         return 'input' + this.index++;
@@ -144,6 +148,14 @@ MyKoyomiSettings.prototype = {
         var table = this.elt.querySelector('.birthdays');
         var tr = table.querySelectorAll('label')[aIndex];
         tr.parentNode.removeChild(tr);
+        
+        this.updateColors();
+    },
+    updateColors: function () {
+        var colors = document.querySelectorAll('.color');
+        for (var i = 0; i < colors.length; ++i) {
+            colors[i].style = 'background-color: ' + this.model.hslAt(i + 1);
+        }
     },
     onChange: function (aAdded, aRemovedIndex) {
         if (aAdded) {

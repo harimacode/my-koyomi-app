@@ -29,14 +29,35 @@ MyKoyomiModel.prototype = {
     others: function () {
         return this._others;
     },
-    visibleCount: function () {
+    all: function () {
+        return [this._myself].concat(this._others);
+    },
+    visibleIndexOf: function (aItem) {
         var i = 0;
+        var found = -1;
+        this.all().forEach(function (theItem) {
+            if (aItem == theItem) {
+                found = i;
+            }
+            if (theItem.isVisible()) {
+                i++;
+            }
+        });
+        return found;
+    },
+    visibleCount: function () {
+        var i = 1;
         this._others.forEach(function (aOther) {
             if (aOther.isVisible()) {
                 i++;
             }
         });
         return i;
+    },
+    hslAt: function (aIndex) {
+        var COLORS = 7;
+        var hue = 360 * (aIndex % COLORS) / COLORS;
+        return 'hsl(' + hue + ', 100%, 85%)';
     },
     add: function (aItem) {
         this._others.push(aItem);

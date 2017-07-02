@@ -104,6 +104,14 @@ select:before {
     width: 100%;
 }
 
+.color {
+    border-radius: 0.5em;
+    display: block;
+    margin-right: 0.5em;
+    width: 2em;
+    height: 2em;
+}
+
 .caption {
     min-width: 10em;
 }
