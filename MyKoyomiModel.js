@@ -57,7 +57,7 @@ MyKoyomiModel.prototype = {
     hslAt: function (aIndex) {
         var COLORS = 7;
         var hue = 360 * (aIndex % COLORS) / COLORS;
-        return 'hsl(' + hue + ', 100%, 93%)';
+        return 'hsl(' + hue + ', 100%, 85%)';
     },
     add: function (aItem) {
         this._others.push(aItem);
