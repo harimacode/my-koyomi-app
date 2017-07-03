@@ -57,20 +57,12 @@ MyKoyomiView.prototype = {
             return;
         }
 
-        var m = k.mukeFrom(this.model.myself());
-        this.temp(ctx, function () {
-            ctx.fillStyle = 'rgba(0, 0, 0, ' + alpha + ')';
-            this.pie(ctx,
-                m.from * 360 / 12,
-                m.to   * 360 / 12);
-            ctx.fill()
-        });
+        var m = k.getMuke();
+        this.drawMuke(ctx, m.from, m.to, this.size / 3, alpha);
         
         this.temp(ctx, function () {
             ctx.beginPath();
-            this.arc(ctx,
-                m.to   * 360 / 12,
-                m.from * 360 / 12,
+            this.arc(ctx, m.to, m.from,
                 this.size / 3 + this.ukeLineWidth() * (this.model.visibleIndexOf(k) + 0.5));
             ctx.lineWidth = this.ukeLineWidth();
             ctx.lineCap = 'round';
@@ -78,19 +70,32 @@ MyKoyomiView.prototype = {
             ctx.stroke();
        });
     },
+    drawMuke: function (ctx, from, to, r, alpha) {
+        this.temp(ctx, function () {
+            ctx.fillStyle = 'rgba(0, 0, 0, ' + alpha + ')';
+            this.pie(ctx, from, to, r);
+            ctx.fill()
+        });
+    },
     temp: function (c, fn) {
         c.save();
         fn.call(this);
         c.restore();
     },
-    pie: function (ctx, start, end) {
+    pie: function (ctx, from, to, r) {
         ctx.beginPath();
         ctx.moveTo(
             this.x + this.size / 2,
             this.y + this.size / 2);
-        this.arc(ctx, start, end, this.size / 3);
+        this.arc(ctx, from, to, r);
     },
-    arc: function (ctx, start, end, r) {
+    monthToDegree: function (aMonth) {
+        var relMonth = (aMonth - this.model.myself().getMonth() + 12) % 12;
+        return 360 * relMonth / 12;
+    },
+    arc: function (ctx, from, to, r) {
+        var start = this.monthToDegree(from);
+        var end   = this.monthToDegree(to);
         ctx.arc(
             this.x + this.size / 2,
             this.y + this.size / 2,
