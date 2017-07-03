@@ -146,14 +146,21 @@ select:before {
 
 @media (min-width: 769px) {
     /* PC・タブレット用表示 */
-    #koyomi {
-        border: 2px solid #cccccc;
-        border-radius: 0.5em;
+    .whole-container {
         margin: 0 auto;
+        width: 700px;
+    }
+    .koyomi-container {
         float: left;
+        width: 50%;
+    }
+    #koyomi {
+        border-right: 2px solid #cccccc;
+        margin: 0 auto;
     }
     #settings {
         float: left;
+        width: 50%;
     }
     .fill input {
         width: 100%;

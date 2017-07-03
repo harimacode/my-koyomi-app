@@ -11,36 +11,38 @@
         <script type="text/javascript" src="my-koyomi.js"></script>
     </head>
     <body>
-        <div class="koyomi-container">
-            <canvas id="koyomi"></canvas>
-        </div>
-        <form id="settings">
-            <table>
-                <tr>
-                    <td class="caption"><label for="my-birth-month">自分の誕生月: </label></td>
-                    <td class="fill">
-                        <select id="my-birth-month" class="month birthday" />
-                    </td>
-                </tr>
-            </table>
-            
-            <hr>
-            <div class="edit-container">
-            <button id="edit">編集</button>
+        <div class="whole-container">
+            <div class="koyomi-container">
+                <canvas id="koyomi"></canvas>
             </div>
-            <div class="birthdays table"></div>
-            <hr>
-            <table>
-                <tr>
-                    <td class="caption"><label for="new-name">名前: </label></td>
-                    <td class="fill"><input type="text" id="new-name" class="newName" /></td>
-                </tr>
-                <tr>
-                    <td class="caption"><label for="new-birth-month">誕生月: </label></td>
-                    <td class="fill"><select class="month newBirthday" id="new-birth-month" /></td>
-                </tr>
-                <tr><td></td><td class="buttons"><button class="add">＋</button></td></tr>
-            </table>
-        </form>
+            <form id="settings">
+                <table>
+                    <tr>
+                        <td class="caption"><label for="my-birth-month">自分の誕生月: </label></td>
+                        <td class="fill">
+                            <select id="my-birth-month" class="month birthday" />
+                        </td>
+                    </tr>
+                </table>
+                
+                <hr>
+                <div class="edit-container">
+                <button id="edit">編集</button>
+                </div>
+                <div class="birthdays table"></div>
+                <hr>
+                <table>
+                    <tr>
+                        <td class="caption"><label for="new-name">名前: </label></td>
+                        <td class="fill"><input type="text" id="new-name" class="newName" /></td>
+                    </tr>
+                    <tr>
+                        <td class="caption"><label for="new-birth-month">誕生月: </label></td>
+                        <td class="fill"><select class="month newBirthday" id="new-birth-month" /></td>
+                    </tr>
+                    <tr><td></td><td class="buttons"><button class="add">＋</button></td></tr>
+                </table>
+            </form>
+        </div>
     </body>
 </html>
