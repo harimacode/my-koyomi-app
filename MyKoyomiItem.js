@@ -28,6 +28,15 @@ MyKoyomiItem.prototype = {
     getMonth: function () {
         return this._json.month;
     },
+    mukeFrom: function (aBase) {
+        var adjustment = this.getMonth() - aBase.getMonth();
+        var from = (7 - 12 + adjustment) % 12;
+        var to   = adjustment;
+        return {
+            from: from,
+            to:   to,
+        };        
+    },
     setVisible: function (aVisible) {
         this._json.visible = aVisible;
         this._changed();

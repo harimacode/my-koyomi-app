@@ -57,20 +57,20 @@ MyKoyomiView.prototype = {
             return;
         }
 
-        var adjustment = k.getMonth() - this.model.myself().getMonth();
-        var from = (7 - 12 + adjustment) % 12;
-        var to   = adjustment;
+        var m = k.mukeFrom(this.model.myself());
         this.temp(ctx, function () {
             ctx.fillStyle = 'rgba(0, 0, 0, ' + alpha + ')';
-            this.pie(ctx, from * 360 / 12, to * 360 / 12);
+            this.pie(ctx,
+                m.from * 360 / 12,
+                m.to   * 360 / 12);
             ctx.fill()
         });
         
         this.temp(ctx, function () {
             ctx.beginPath();
             this.arc(ctx,
-                to * 360 / 12,
-                from * 360 / 12,
+                m.to   * 360 / 12,
+                m.from * 360 / 12,
                 this.size / 3 + this.ukeLineWidth() * (this.model.visibleIndexOf(k) + 0.5));
             ctx.lineWidth = this.ukeLineWidth();
             ctx.lineCap = 'round';
