@@ -22,7 +22,7 @@ MyKoyomiView.prototype = {
 
         ctx.clearRect(this.x, this.y, this.size, this.size);
 
-        var alphaUnit = 1 / this.model.visibleCount();
+        var alphaUnit = 1 / (this.model.visibleCount() + 1);
         var all = this.model.all();
         for (var i = 0; i < all.length; ++i) {
             this.drawItem(ctx, all[i], i, alphaUnit);
@@ -40,6 +40,22 @@ MyKoyomiView.prototype = {
         for (var i = 0; i < 12; ++i) {
             this.putLabel(ctx, i * 360 / 12, (i + month - 1) % 12 + 1);
         }
+
+        var that = this;
+        [
+            // 野巫
+            [1, 1],
+            // 盆
+            [8.3, 0.3],
+            // 冬
+            [(this.model.myself().getMonth() + 12 - 1) % 12, 1],
+        ].forEach(function (aBadPeriod) {
+            var from = aBadPeriod[0];
+            var to   = from + aBadPeriod[1];
+            that.drawMuke(ctx, from, to,
+                that.size / 3 + that.ukeLineWidth(),
+                alphaUnit);
+        });
     },
     putLabel: function (ctx, degree, label) {
         var rad = 2 * Math.PI * (-.25 + degree / 360);
