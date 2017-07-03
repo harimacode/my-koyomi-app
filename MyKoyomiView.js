@@ -22,7 +22,7 @@ MyKoyomiView.prototype = {
 
         ctx.clearRect(this.x, this.y, this.size, this.size);
 
-        var alphaUnit = 1 / this.model.visibleCount();
+        var alphaUnit = 1 / (this.model.visibleCount() + 1);
         var all = this.model.all();
         for (var i = 0; i < all.length; ++i) {
             this.drawItem(ctx, all[i], i, alphaUnit);
@@ -40,6 +40,22 @@ MyKoyomiView.prototype = {
         for (var i = 0; i < 12; ++i) {
             this.putLabel(ctx, i * 360 / 12, (i + month - 1) % 12 + 1);
         }
+
+        var that = this;
+        [
+            // 野巫
+            [1, 1],
+            // 盆
+            [8.3, 0.3],
+            // 冬
+            [(this.model.myself().getMonth() + 12 - 1) % 12, 1],
+        ].forEach(function (aBadPeriod) {
+            var from = aBadPeriod[0];
+            var to   = from + aBadPeriod[1];
+            that.drawMuke(ctx, from, to,
+                that.size / 3 + that.ukeLineWidth(),
+                alphaUnit);
+        });
     },
     putLabel: function (ctx, degree, label) {
         var rad = 2 * Math.PI * (-.25 + degree / 360);
@@ -57,20 +73,12 @@ MyKoyomiView.prototype = {
             return;
         }
 
-        var adjustment = k.getMonth() - this.model.myself().getMonth();
-        var from = (7 - 12 + adjustment) % 12;
-        var to   = adjustment;
-        this.temp(ctx, function () {
-            ctx.fillStyle = 'rgba(0, 0, 0, ' + alpha + ')';
-            this.pie(ctx, from * 360 / 12, to * 360 / 12);
-            ctx.fill()
-        });
+        var m = k.getMuke();
+        this.drawMuke(ctx, m.from, m.to, this.size / 3, alpha);
         
         this.temp(ctx, function () {
             ctx.beginPath();
-            this.arc(ctx,
-                to * 360 / 12,
-                from * 360 / 12,
+            this.arc(ctx, m.to, m.from,
                 this.size / 3 + this.ukeLineWidth() * (this.model.visibleIndexOf(k) + 0.5));
             ctx.lineWidth = this.ukeLineWidth();
             ctx.lineCap = 'round';
@@ -78,19 +86,32 @@ MyKoyomiView.prototype = {
             ctx.stroke();
        });
     },
+    drawMuke: function (ctx, from, to, r, alpha) {
+        this.temp(ctx, function () {
+            ctx.fillStyle = 'rgba(0, 0, 0, ' + alpha + ')';
+            this.pie(ctx, from, to, r);
+            ctx.fill()
+        });
+    },
     temp: function (c, fn) {
         c.save();
         fn.call(this);
         c.restore();
     },
-    pie: function (ctx, start, end) {
+    pie: function (ctx, from, to, r) {
         ctx.beginPath();
         ctx.moveTo(
             this.x + this.size / 2,
             this.y + this.size / 2);
-        this.arc(ctx, start, end, this.size / 3);
+        this.arc(ctx, from, to, r);
     },
-    arc: function (ctx, start, end, r) {
+    monthToDegree: function (aMonth) {
+        var relMonth = (aMonth - this.model.myself().getMonth() + 12) % 12;
+        return 360 * relMonth / 12;
+    },
+    arc: function (ctx, from, to, r) {
+        var start = this.monthToDegree(from);
+        var end   = this.monthToDegree(to);
         ctx.arc(
             this.x + this.size / 2,
             this.y + this.size / 2,
