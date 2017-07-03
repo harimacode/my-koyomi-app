@@ -154,7 +154,7 @@ MyKoyomiSettings.prototype = {
     updateColors: function () {
         var colors = document.querySelectorAll('.color');
         for (var i = 0; i < colors.length; ++i) {
-            colors[i].style = 'background-color: ' + this.model.hslAt(i + 1);
+            colors[i].style.backgroundColor = this.model.hslAt(i + 1);
         }
     },
     onChange: function (aAdded, aRemovedIndex) {
