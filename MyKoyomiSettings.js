@@ -64,6 +64,13 @@ MyKoyomiSettings.prototype = {
         var notInEditMode = document.querySelectorAll('.notInEditMode');
         Array.prototype.forEach.call(notInEditMode,
             this.editMode ? hide : show);
+            
+        this.updateHints();
+    },
+    updateHints: function () {
+        var table = this.elt.querySelector('.birthdays');
+        var isEmpty = table.querySelectorAll('label').length == 0;
+        this.setHintsVisible(isEmpty);
     },
     addSettingItem: function (aItem) {
         var that = this;
@@ -125,7 +132,7 @@ MyKoyomiSettings.prototype = {
     },
     indexOf: function (button) {
         var tr = this.ancestorOf(button, 'label');
-        var trs = tr.parentNode.children;
+        var trs = tr.parentNode.querySelectorAll('label');
         var count = trs.length;
         for (var i = 0; i < count; ++i) {
             if (trs[i] == tr) {
@@ -150,12 +157,22 @@ MyKoyomiSettings.prototype = {
         tr.parentNode.removeChild(tr);
         
         this.updateColors();
+        this.updateHints();
     },
     updateColors: function () {
         var colors = document.querySelectorAll('.color');
         for (var i = 0; i < colors.length; ++i) {
             colors[i].style.backgroundColor = this.model.hslAt(i + 1);
         }
+    },
+    setHintsVisible: function (aVisible) {
+        Array.prototype.forEach.call(document.querySelectorAll('.hint'), function (aElt) {
+            if (aVisible) {
+                aElt.classList.remove('hidden');
+            } else {
+                aElt.classList.add('hidden');
+            }
+        });
     },
     onChange: function (aAdded, aRemovedIndex) {
         if (aAdded) {
