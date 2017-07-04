@@ -39,6 +39,8 @@ MyKoyomiSettings.prototype = {
         this.model.others().forEach(function (aOther) {
             that.addSettingItem(aOther);
         });
+        
+        this.updateHints();
     },
     toggleEditMode: function () {
         this.editMode = !this.editMode;
@@ -166,6 +168,12 @@ MyKoyomiSettings.prototype = {
         }
     },
     setHintsVisible: function (aVisible) {
+        var edit = document.getElementById('edit');
+        if (aVisible) {
+            edit.classList.add('hidden');
+        } else {
+            edit.classList.remove('hidden');
+        }
         Array.prototype.forEach.call(document.querySelectorAll('.hint'), function (aElt) {
             if (aVisible) {
                 aElt.classList.remove('hidden');
