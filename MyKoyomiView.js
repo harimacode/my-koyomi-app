@@ -30,15 +30,11 @@ MyKoyomiView.prototype = {
         }
         
         var month = this.model.myself().getMonth();
-        for (var i = 0; i < 12; ++i) {
-            this.putLabel(ctx, i + 1, 1, i % 12 +1);
-        }
-
         var that = this;
         [
+            ['冬', month - 1, 1],
             ['野巫', 1, 1],
             ['盆', 8.33, 0.33],
-            ['冬', (this.model.myself().getMonth() + 12 - 1) % 12, 1],
         ].forEach(function (aBadPeriod) {
             var label = aBadPeriod[0];
             var from = aBadPeriod[1];
@@ -48,6 +44,10 @@ MyKoyomiView.prototype = {
                 alphaUnit);
             that.putLabel(ctx, (from + to) / 2, -1.25, label);
         });
+        
+        for (var i = 0; i < 12; ++i) {
+            this.putLabel(ctx, i + 1, 1, i % 12 +1);
+        }
     },
     putLabel: function (ctx, aMonth, aRadiusUnit, label) {
         var degree = this.monthToDegree(aMonth);
