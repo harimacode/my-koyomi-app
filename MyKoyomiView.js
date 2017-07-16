@@ -53,7 +53,7 @@ MyKoyomiView.prototype = {
             var from = aBadPeriod[0];
             var to   = from + aBadPeriod[1];
             that.drawMuke(ctx, from, to,
-                that.size / 3 + that.ukeLineWidth(),
+                that.size / 3 + that.ukeLineWidth() * that.model.visibleCount(),
                 alphaUnit);
         });
     },
