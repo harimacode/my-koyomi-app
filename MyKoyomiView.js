@@ -39,7 +39,7 @@ MyKoyomiView.prototype = {
             // 野巫
             [1, 1],
             // 盆
-            [8.3, 0.3],
+            [8.33, 0.33],
             // 冬
             [(this.model.myself().getMonth() + 12 - 1) % 12, 1],
         ].forEach(function (aBadPeriod) {
