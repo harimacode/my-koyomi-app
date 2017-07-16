@@ -14,6 +14,7 @@ function MyKoyomiView(id, x, y, size, aModel) {
     var ctx = this.elt.getContext('2d');
     // for retina
     ctx.scale(2, 2);
+    ctx.globalCompositeOperation = 'darker';
 }
 MyKoyomiView.prototype = {
     draw: function () {
@@ -27,46 +28,56 @@ MyKoyomiView.prototype = {
         for (var i = 0; i < all.length; ++i) {
             this.drawItem(ctx, all[i], i, alphaUnit);
         }
-        ctx.beginPath();
-        ctx.arc(
-            this.x + this.size / 2,
-            this.y + this.size / 2,
-            this.size / 3,
-            0, 2 * Math.PI);
-        ctx.closePath();
-        ctx.stroke();
-
+        
         var month = this.model.myself().getMonth();
-        for (var i = 0; i < 12; ++i) {
-            this.putLabel(ctx, i * 360 / 12, (i + month - 1) % 12 + 1);
-        }
-
         var that = this;
         [
-            // 野巫
-            [1, 1],
-            // 盆
-            [8.3, 0.3],
-            // 冬
-            [(this.model.myself().getMonth() + 12 - 1) % 12, 1],
+            ['冬', month - 1, 1],
+            ['野巫', 1, 1],
+            ['盆', 8.33, 0.33],
         ].forEach(function (aBadPeriod) {
-            var from = aBadPeriod[0];
-            var to   = from + aBadPeriod[1];
+            var label = aBadPeriod[0];
+            var from = aBadPeriod[1];
+            var to   = from + aBadPeriod[2];
             that.drawMuke(ctx, from, to,
-                that.size / 3 + that.ukeLineWidth(),
+                that.size / 3 + that.ukeLineWidth() * that.model.visibleCount(),
                 alphaUnit);
+            that.putLabel(ctx, (from + to) / 2, -1.25, label);
         });
+        
+        for (var i = 0; i < 12; ++i) {
+            this.putLabel(ctx, i + 1, 1, i % 12 +1);
+        }
     },
-    putLabel: function (ctx, degree, label) {
+    putLabel: function (ctx, aMonth, aRadiusUnit, label) {
+        var degree = this.monthToDegree(aMonth);
         var rad = 2 * Math.PI * (-.25 + degree / 360);
         var fontSize = Math.ceil(20 / 300 * this.size);
         ctx.font = fontSize + 'px serif';
         var textSize = ctx.measureText(label);
-        var len = this.size / 3 + fontSize;
+        var len = this.size / 3 + fontSize * aRadiusUnit;
         var x = this.x + this.size / 2 + len * Math.cos(rad) - textSize.width / 2;
         var y = this.y + this.size / 2 + len * Math.sin(rad) + fontSize / 2;
-        ctx.fillStyle = 'black';
-        ctx.fillText(label, x, y);
+        this.drawEdgedText(ctx, label, x, y, aRadiusUnit > 0);
+    },
+    drawEdgedText: function (ctx, label, x, y, aBlack) {
+        var edgeOperation = aBlack ? 'lighter' : 'darker';
+        var edgeColor = aBlack ? 'white' : 'black';
+        var textOperation = aBlack ? 'darker' : 'lighter';
+        var textColor = aBlack ? 'black' : 'white';
+        this.temp(ctx, function () {
+            ctx.globalCompositeOperation = edgeOperation;
+            ctx.fillStyle = edgeColor;
+            var edgeWidth = 1;
+            for (var dx = -edgeWidth; dx <= edgeWidth; dx++) {
+                for (var dy = -edgeWidth; dy <= edgeWidth; dy++) {
+                    ctx.fillText(label, x + dx, y + dy);
+                }
+            }
+            ctx.globalCompositeOperation = textOperation;
+            ctx.fillStyle = textColor;
+            ctx.fillText(label, x, y);
+        });
     },
     drawItem: function (ctx, k, i, alpha) {
         if (!k.isVisible()) {
@@ -81,7 +92,6 @@ MyKoyomiView.prototype = {
             this.arc(ctx, m.to, m.from,
                 this.size / 3 + this.ukeLineWidth() * (this.model.visibleIndexOf(k) + 0.5));
             ctx.lineWidth = this.ukeLineWidth();
-            ctx.lineCap = 'round';
             ctx.strokeStyle = this.model.hslAt(i);
             ctx.stroke();
        });
