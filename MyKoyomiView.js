@@ -14,6 +14,7 @@ function MyKoyomiView(id, x, y, size, aModel) {
     var ctx = this.elt.getContext('2d');
     // for retina
     ctx.scale(2, 2);
+    ctx.globalCompositeOperation = 'darker';
 }
 MyKoyomiView.prototype = {
     draw: function () {
