@@ -81,7 +81,6 @@ MyKoyomiView.prototype = {
             this.arc(ctx, m.to, m.from,
                 this.size / 3 + this.ukeLineWidth() * (this.model.visibleIndexOf(k) + 0.5));
             ctx.lineWidth = this.ukeLineWidth();
-            ctx.lineCap = 'round';
             ctx.strokeStyle = this.model.hslAt(i);
             ctx.stroke();
        });
