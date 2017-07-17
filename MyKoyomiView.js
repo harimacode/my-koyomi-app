@@ -14,7 +14,7 @@ function MyKoyomiView(id, x, y, size, aModel) {
     var ctx = this.elt.getContext('2d');
     // for retina
     ctx.scale(2, 2);
-    ctx.globalCompositeOperation = 'darker';
+    ctx.globalCompositeOperation = 'plus-darker';
 }
 MyKoyomiView.prototype = {
     draw: function () {
@@ -61,9 +61,9 @@ MyKoyomiView.prototype = {
         this.drawEdgedText(ctx, label, x, y, aRadiusUnit > 0);
     },
     drawEdgedText: function (ctx, label, x, y, aBlack) {
-        var edgeOperation = aBlack ? 'lighter' : 'darker';
+        var edgeOperation = aBlack ? 'plus-lighter' : 'plus-darker';
         var edgeColor = aBlack ? 'white' : 'black';
-        var textOperation = aBlack ? 'darker' : 'lighter';
+        var textOperation = aBlack ? 'plus-darker' : 'plus-lighter';
         var textColor = aBlack ? 'black' : 'white';
         this.temp(ctx, function () {
             ctx.globalCompositeOperation = edgeOperation;
