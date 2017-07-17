@@ -32,7 +32,8 @@ MyKoyomiView.prototype = {
         var month = this.model.myself().getMonth();
         var that = this;
         [
-            ['冬', month - 1, 1],
+            // 無卦の最後
+            ['', month - 1, 1],
             ['野巫', 1, 1],
             ['盆', 8.33, 0.33],
         ].forEach(function (aBadPeriod) {
