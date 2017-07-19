@@ -1,36 +1,44 @@
 function MyKoyomiModel(aMyself) {
     this._myself = aMyself;
     aMyself.listener = this;
-    this._others = [];
+    this._groups = [];
     this._listeners = [];
 }
 MyKoyomiModel.fromJSON = function (aJSON) {
     var myself = MyKoyomiItem.fromJSON(aJSON.myself);
     var model = new MyKoyomiModel(myself);
-    aJSON.others.forEach(function (aOther) {
-        model.add(MyKoyomiItem.fromJSON(aOther));
+    aJSON.groups.forEach(function (aGroup) {
+        model.add(MyKoyomiGroup.fromJSON(aGroup));
     });
     return model;
 };
 MyKoyomiModel.prototype = {
     toJSON: function () {
-        var others = [];
-        this._others.forEach(function (aOther) {
-            others.push(aOther.toJSON())
+        var groups = [];
+        this._groups.forEach(function (aGroup) {
+            groups.push(aGroup.toJSON())
         });
         return {
             'myself': this._myself.toJSON(),
-            'others': others,
+            'groups': groups,
         };
     },
     myself: function () {
         return this._myself;
     },
+    defaultGroup: function () {
+        if (this._groups.length < 1) {
+            var group = new MyKoyomiGroup();
+            this._groups.push(group);
+            group.listener = this;
+        }
+        return this._groups[0];
+    },
     others: function () {
-        return this._others;
+        return this.defaultGroup().others();
     },
     all: function () {
-        return [this._myself].concat(this._others);
+        return [this._myself].concat(this.defaultGroup().others());
     },
     visibleIndexOf: function (aItem) {
         var i = 0;
@@ -46,13 +54,7 @@ MyKoyomiModel.prototype = {
         return found;
     },
     visibleCount: function () {
-        var i = 1;
-        this._others.forEach(function (aOther) {
-            if (aOther.isVisible()) {
-                i++;
-            }
-        });
-        return i;
+        return this.defaultGroup().visibleCount();
     },
     hslAt: function (aIndex) {
         var COLORS = 7;
@@ -60,13 +62,10 @@ MyKoyomiModel.prototype = {
         return 'hsl(' + hue + ', 100%, 85%)';
     },
     add: function (aItem) {
-        this._others.push(aItem);
-        aItem.listener = this;
-        this._changed(aItem, -1);
+        this.defaultGroup().add(aItem);
     },
     removeAt: function (aIndex) {
-        this._others.splice(aIndex, 1);
-        this._changed(null, aIndex);
+        this.defaultGroup().removeAt(aIndex);
     },
     addListener: function (aListener) {
         this._listeners.push(aListener);
@@ -79,6 +78,9 @@ MyKoyomiModel.prototype = {
     },
     onChange: function () {
         this._changed(null, -1);
+    },
+    onGroupChange: function (aAdded, aRemovedIndex) {
+        this._changed(aAdded, aRemovedIndex);
     },
     _changed: function (aAdded, aRemovedIndex) {
         this._listeners.forEach(function (aListener) {
